@@ -91,6 +91,8 @@ GEM
     debug (1.8.0)
       irb (>= 1.5.0)
       reline (>= 0.3.1)
+    eiwa (0.1.0)
+      nokogiri
     erubi (1.12.0)
     globalid (1.1.0)
       activesupport (>= 5.0)
@@ -243,6 +245,7 @@ DEPENDENCIES
   bootsnap
   capybara
   debug
+  eiwa
   importmap-rails
   jbuilder
   pg

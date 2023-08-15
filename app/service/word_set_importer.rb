@@ -15,30 +15,17 @@ class WordSetImporter
     file.each_line do |term|
       next unless term
 
-
       word = Word.find_or_create_by(content: clean_content(term))
-      word.word_sets.build(word_set:)
+      word.word_sets << word_set
       word.tag!
-      words << word
-      import_words if words.length > 1_000
+      word.word_count += 1
+      word.save
     end
-    import_words
   ensure
     file.close
   end
 
   private
-
-  def import_words
-    return unless words.any?
-
-    Word.import(
-      words.uniq(&:content),
-      validate_uniqueness: true,
-      recursive: true
-    )
-    @words = []
-  end
 
   def clean_content(content)
     content.strip

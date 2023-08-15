@@ -7,6 +7,18 @@ class Word < ApplicationRecord
   has_many :frequency_tables, through: :word_frequencies
   has_many :tags, through: :word_tags
 
+  scope :frequency_ordered, -> { includes(:word_frequencies).order('word_frequencies.frequency') }
+
+  def self.by_frequency_table(frequency_table)
+    includes(:word_frequencies)
+      .where(word_frequencies: { frequency_table: })
+  end
+
+  def self.by_word_sets(word_sets)
+    includes(:word_sets)
+      .where(word_sets: { id: word_sets.pluck(:id) })
+  end
+
   def tag!
     if content[/^~/]
       # Word is a counter
