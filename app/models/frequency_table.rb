@@ -1,0 +1,2 @@
+class FrequencyTable < ApplicationRecord
+end

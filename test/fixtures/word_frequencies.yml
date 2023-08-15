@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  frequency: 1
+  word: one
+  frequency_table: one
+
+two:
+  frequency: 1
+  word: two
+  frequency_table: two

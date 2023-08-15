@@ -1,0 +1,32 @@
+version: "2"
+
+volumes:
+  postgres:
+  word-tracker-gems:
+    external: true
+
+services:
+  postgres:
+    image: "postgres:15.3-alpine"
+    ports:
+      - "36000:5432"
+    volumes:
+      - ".:/app"
+      - "postgres:/var/lib/postgresql/data"
+    env_file:
+      - ".env"
+  app:
+    stdin_open: true
+    tty: true
+    depends_on:
+      - "postgres"
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./.bundle:/root/.bundle"
+      - ".:/app:cached"
+      - word-tracker-gems:/gems
+    env_file:
+      - ".env"
