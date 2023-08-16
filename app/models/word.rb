@@ -32,4 +32,12 @@ class Word < ApplicationRecord
       .where(frequency_table: { name: })
       .order('word_frequencies.frequency ASC')
   end
+
+  def dictionary_entry
+    Dictionary::Entry.find_by(text: content)
+  end
+
+  def to_anki_card
+    AnkiCardGenerator.new(self).call
+  end
 end

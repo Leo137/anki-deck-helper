@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_15_211636) do
+ActiveRecord::Schema[7.0].define(version: 2023_08_16_160134) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -65,6 +65,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_15_211636) do
     t.string "text"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_kana", default: false
     t.index ["dictionary_entry_id"], name: "index_dictionary_readings_on_dictionary_entry_id"
   end
 

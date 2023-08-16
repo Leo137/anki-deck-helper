@@ -48,11 +48,11 @@ gem "bootsnap", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
-# A ruby gem that parses the JMDict Japanese-English dictionary
-gem 'eiwa'
+# yajl/ffi
+gem 'yajl-ffi'
 
 # Generate decks ready to be imported into Anki
-gem "anki"
+gem 'anki'
 
 # A streaming JSON parsing and encoding library for Ruby (C bindings to yajl)
 gem 'yajl-ruby', require: 'yajl'

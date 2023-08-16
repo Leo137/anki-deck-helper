@@ -27,7 +27,10 @@ class DictionaryEntryBuilder
   end
 
   def build_dictionary_reading(dict_reading)
-    entry.readings.build(text: dict_reading.text)
+    entry.readings.build(
+      text: dict_reading.text,
+      is_kana: dict_reading.is_kana
+    )
   end
 
   # Process Meanings
@@ -49,25 +52,33 @@ class DictionaryEntryBuilder
 
   def build_meaning_definitions(meaning, dict_meaning)
     dict_meaning.definitions.map do |dict_definition|
-      meaning.definitions.new(text: dict_definition.text)
+      next unless dict_definition&.text&.present?
+
+      meaning.definitions.build(text: dict_definition.text)
     end
   end
 
   def build_meaning_misc_tags(meaning, dict_meaning)
     dict_meaning.misc_tags.map do |dict_misc_tags|
-      meaning.misc_tags.new(code: dict_misc_tags.code)
+      next unless dict_misc_tags&.code&.present?
+
+      meaning.misc_tags.build(code: dict_misc_tags.code)
     end
   end
 
   def build_meaning_fields(meaning, dict_meaning)
     dict_meaning.fields.map do |dict_fields|
-      meaning.fields.new(code: dict_fields.code)
+      next unless dict_fields&.code&.present?
+
+      meaning.fields.build(code: dict_fields.code)
     end
   end
 
   def build_meaning_part_of_speech(meaning, dict_meaning)
     dict_meaning.parts_of_speech.map do |dict_pos|
-      meaning.part_of_speeches.new(code: dict_pos.code)
+      next unless dict_pos&.code&.present?
+
+      meaning.part_of_speeches.build(code: dict_pos.code)
     end
   end
 end
