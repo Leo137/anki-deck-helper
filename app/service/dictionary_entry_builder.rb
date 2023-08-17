@@ -10,7 +10,10 @@ class DictionaryEntryBuilder
   end
 
   def call
-    @entry = Dictionary::Entry.new(text: dict_entry.text)
+    @entry = Dictionary::Entry.new(
+      jmdict_id: dict_entry.id,
+      text: dict_entry.text
+    )
 
     build_dictionary_meanings
     build_dictionary_readings
