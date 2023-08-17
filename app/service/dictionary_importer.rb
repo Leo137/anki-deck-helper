@@ -31,10 +31,9 @@ class DictionaryImporter
     return unless entries.any?
 
     Dictionary::Entry.import(
-      entries.uniq(&:text),
+      entries,
       recursive: true,
-      validate: false,
-      on_duplicate_key_update: { conflict_target: [:text], columns: [] }
+      validate: false
     )
     @entries = []
   end

@@ -19,7 +19,7 @@ class AnkiDeckGenerator
     @deck ||= Anki::Deck.new(
       card_headers: headers,
       card_data: cards,
-      field_separator: '||'
+      field_separator: '|'
     )
   end
 
