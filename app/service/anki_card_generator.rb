@@ -35,6 +35,6 @@ class AnkiCardGenerator
     @entries ||= (
         Dictionary::Entry.where(text: content) +
         Dictionary::Reading.where(text: content).map(&:dictionary_entry)
-      ).flatten.compact.uniq
+      ).flatten.compact.uniq.sort_by(&:jmdict_id).reverse
   end
 end
