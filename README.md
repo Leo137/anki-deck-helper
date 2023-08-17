@@ -10,6 +10,11 @@ You can
 Card example:
 ![Example card](./example_card.png)
 
+# Prerequisites
+
+* Docker
+  * or, a local Ruby environment with an PSQL database
+
 # Install
 
 Download last JMDict JSON dictionary from
