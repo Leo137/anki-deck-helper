@@ -13,6 +13,7 @@
 
 /decks/*
 /dictionaries/*
+!/dictionaries/.keep
 
 # Ignore all logfiles and tempfiles.
 /log/*
