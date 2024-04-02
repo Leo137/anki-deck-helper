@@ -66,6 +66,13 @@ AnkiDeckGenerator.new(words, 'my_deck').call
 
 ```
 
+Remove words from other word sets
+```
+other_words = (WordSet.find(1).words.distinct + WordSet.find(2).words.distinct + WordSet.find(3).words.distinct).uniq; 1
+
+final_words = (words - other_words); 1
+```
+
 To destroy things
 ```
 Dictionary::Meaning::Definition.delete_all
