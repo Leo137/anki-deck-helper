@@ -120,3 +120,13 @@ Styling used for the cards
   text-align: center;
 }
 ```
+
+## Export to Kotoba bot format
+
+Export a CSV to be used for Kotoba's Discord bot (https://kotobaweb.com/bot)
+
+```
+# Create an Kotoba CSV deck from a list of words named "kotoba_my_deck"
+# Deck will be created into the "decks" subfolder
+KotobaDeckGenerator.new(words, 'my_deck').call
+```

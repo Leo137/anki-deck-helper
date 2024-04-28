@@ -40,4 +40,8 @@ class Word < ApplicationRecord
   def to_anki_card
     AnkiCardGenerator.new(self).call
   end
+
+  def to_kotoba_card
+    KotobaCardGenerator.new(self).call
+  end
 end
