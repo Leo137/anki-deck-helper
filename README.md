@@ -130,3 +130,13 @@ Export a CSV to be used for Kotoba's Discord bot (https://kotobaweb.com/bot)
 # Deck will be created into the "decks" subfolder
 KotobaDeckGenerator.new(words, 'my_deck').call
 ```
+
+## Export to Javascript Array format
+
+Export a File to be used for the simple SRS application (https://leo-flashcards.netlify.app/)
+
+```
+# Create an Kotoba CSV deck from a list of words named "javascript_my_deck"
+# Deck will be created into the "decks" subfolder
+JavascriptDeckGenerator.new(words, 'my_deck').call
+```

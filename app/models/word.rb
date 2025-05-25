@@ -44,4 +44,8 @@ class Word < ApplicationRecord
   def to_kotoba_card
     KotobaCardGenerator.new(self).call
   end
+
+  def to_javascript_card
+    JavascriptCardGenerator.new(self).call
+  end
 end
