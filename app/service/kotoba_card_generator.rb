@@ -39,7 +39,7 @@ class KotobaCardGenerator
       entry.meanings.map do |meaning|
         meaning.definitions.map(&:text)
       end.flatten.compact.uniq
-    end.flatten.compact.uniq.join(',')
+    end.flatten.compact.uniq.join(',').truncate(590)
   end
 
   def instructions
