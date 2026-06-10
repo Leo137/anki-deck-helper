@@ -30,6 +30,10 @@ gem "jbuilder"
 # Handle Cross-Origin Resource Sharing (CORS) for the React frontend
 gem "rack-cors"
 
+# Search and pagination
+gem "ransack"
+gem "kaminari"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 

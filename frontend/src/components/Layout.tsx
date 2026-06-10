@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import SearchBar from './SearchBar'
 import ThemeToggle from './ThemeToggle'
 
 type LayoutProps = {
@@ -13,6 +14,7 @@ export default function Layout({ children }: LayoutProps) {
           <Link to="/" className="shrink-0 text-xl font-semibold text-primary hover:text-primary-hover">
             Word Tracker
           </Link>
+          <SearchBar />
           <ThemeToggle />
         </div>
       </header>

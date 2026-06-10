@@ -5,6 +5,7 @@ Rails.application.routes.draw do
         resources :words, only: [:index], module: :word_sets
       end
       resources :words, only: %i[index show]
+      get :search, to: 'search#index'
     end
   end
 end

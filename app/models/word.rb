@@ -11,6 +11,14 @@ class Word < ApplicationRecord
 
   scope :frequency_ordered, -> { includes(:word_frequencies).order('word_frequencies.frequency') }
 
+  def self.ransackable_attributes(_auth_object = nil)
+    %w[content kana]
+  end
+
+  def self.ransackable_associations(_auth_object = nil)
+    []
+  end
+
   def self.by_frequency_table(frequency_table)
     includes(:word_frequencies)
       .where(word_frequencies: { frequency_table: })
