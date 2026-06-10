@@ -22,16 +22,19 @@ module Api
       private
 
       def search_words
+        Word.includes(dictionary_entry: :readings)
+            .where(id: matching_word_ids)
+            .order(:content)
+            .page(params[:page])
+            .per(per_page(WORDS_PER_PAGE))
+      end
+
+      def matching_word_ids
         ransack_ids = Word.ransack(content_or_kana_cont: @query).result.pluck(:id)
         reading_ids = Word.joins(dictionary_entry: :readings)
                           .where('dictionary_readings.text ILIKE ?', like_query)
                           .pluck(:id)
-
-        Word.includes(dictionary_entry: :readings)
-            .where(id: (ransack_ids + reading_ids).uniq)
-            .order(:content)
-            .page(params[:page])
-            .per(per_page(WORDS_PER_PAGE))
+        (ransack_ids + reading_ids).uniq
       end
 
       def search_word_sets

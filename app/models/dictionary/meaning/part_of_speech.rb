@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Dictionary::Meaning::PartOfSpeech < ApplicationRecord
   self.table_name = 'dictionary_meaning_part_of_speeches'
 

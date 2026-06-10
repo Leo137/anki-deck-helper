@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # Creates kotoba deck CSV based on a list of words
-# frozen_string_literal: true
 
 require 'csv'
 

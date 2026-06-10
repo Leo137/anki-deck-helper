@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Dictionary::Meaning::MiscTag < ApplicationRecord
   self.table_name = 'dictionary_meaning_misc_tags'
 

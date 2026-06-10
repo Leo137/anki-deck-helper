@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Dictionary::Meaning::Field < ApplicationRecord
   self.table_name = 'dictionary_meaning_fields'
 

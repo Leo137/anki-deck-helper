@@ -1,6 +1,7 @@
 AllCops:
   NewCops: enable
   TargetRubyVersion: 3.2
+  SuggestExtensions: false
   Exclude:
     - bin/**/*
     - db/schema.rb
@@ -10,3 +11,23 @@ AllCops:
     - test/**/*
     - tmp/**/*
     - vendor/**/*
+    - app/service/test.rb
+
+Style/Documentation:
+  Enabled: false
+
+Style/OpenStructUse:
+  Enabled: false
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*
+    - config/**/*
+    - Rakefile
+
+Metrics/ClassLength:
+  Max: 120
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - app/models/dictionary/meaning/**/*

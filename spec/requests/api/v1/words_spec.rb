@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::Words', type: :request do
   describe 'GET /api/v1/words' do
     it 'returns all words ordered by content' do
-      second = create(:word, content: 'zebra')
-      first = create(:word, content: 'apple')
+      create(:word, content: 'zebra')
+      create(:word, content: 'apple')
 
       get '/api/v1/words', as: :json
 
@@ -41,8 +41,8 @@ RSpec.describe 'Api::V1::Words', type: :request do
       table = create(:frequency_table, name: 'jpdb', max_frequency: 100)
       word = create(:word, :with_kana)
       tag = create(:tag, name: 'common')
-      create(:word_tag, word: word, tag: tag)
-      create(:word_frequency, word: word, frequency_table: table, frequency: 25)
+      create(:word_tag, word:, tag:)
+      create(:word_frequency, word:, frequency_table: table, frequency: 25)
 
       get '/api/v1/words', as: :json
 

@@ -5,7 +5,9 @@ module Api
     class WordsController < BaseController
       def index
         @words = Word.includes(:tags, word_frequencies: :frequency_table).order(:content)
-        @words = @words.joins(:word_sets).where(word_sets: { id: params[:word_set_id] }) if params[:word_set_id].present?
+        return unless params[:word_set_id].present?
+
+        @words = @words.joins(:word_sets).where(word_sets: { id: params[:word_set_id] })
       end
 
       def show

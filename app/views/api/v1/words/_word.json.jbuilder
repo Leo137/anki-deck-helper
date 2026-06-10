@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.extract! word, :id, :content, :kana, :word_count
 json.reading word.reading
 

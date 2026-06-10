@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FrequencyTableEntry < ApplicationRecord
   validates :content, presence: true, uniqueness: { scope: :frequency_table_id }
 
