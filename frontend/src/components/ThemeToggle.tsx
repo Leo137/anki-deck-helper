@@ -1,4 +1,5 @@
 import { useTheme } from '../contexts/ThemeContext'
+import { themeClasses } from '../styles/theme'
 
 export default function ThemeToggle() {
   const { preference, resolvedTheme, cyclePreference } = useTheme()
@@ -16,7 +17,7 @@ export default function ThemeToggle() {
       onClick={cyclePreference}
       aria-label={label}
       title={label}
-      className="shrink-0 rounded-lg border border-gray-300 bg-white p-2 text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+      className={themeClasses.iconButton}
     >
       {preference === 'system' && (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" className="h-5 w-5" aria-hidden="true">

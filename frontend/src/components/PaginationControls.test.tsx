@@ -1,6 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { themeClasses } from '../styles/theme'
 import { renderWithProviders } from '../test/test-utils'
 import PaginationControls from './PaginationControls'
 
@@ -28,7 +29,14 @@ describe('PaginationControls', () => {
     )
 
     expect(screen.getByText(/showing 51–100 of 120 words/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page')
+
+    const activePage = screen.getByRole('button', { name: '2' })
+    expect(activePage).toHaveAttribute('aria-current', 'page')
+    expect(activePage.className).toContain(themeClasses.paginationPageActive)
+
+    expect(screen.getByRole('button', { name: 'Previous' }).className).toContain(
+      themeClasses.paginationNavButton,
+    )
 
     await user.click(screen.getByRole('button', { name: 'Next' }))
     expect(onPageChange).toHaveBeenCalledWith(3)

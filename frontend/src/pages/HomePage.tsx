@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { fetchWordSets } from '../api/wordSets'
 import WordSetList from '../components/WordSetList'
+import { themeClasses } from '../styles/theme'
 import type { WordSetSummary } from '../types/word'
 
 export default function HomePage() {
@@ -21,15 +22,13 @@ export default function HomePage() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">
-        Failed to load word sets: {error}
-      </div>
+      <div className={themeClasses.alertError}>Failed to load word sets: {error}</div>
     )
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900 dark:text-gray-100">Word Sets</h1>
+      <h1 className={`mb-6 ${themeClasses.headingXl}`}>Word Sets</h1>
       <WordSetList wordSets={wordSets} />
     </div>
   )

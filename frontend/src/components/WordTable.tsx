@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { themeClasses } from '../styles/theme'
 import type { Word } from '../types/word'
 
 type WordTableProps = {
@@ -10,16 +11,16 @@ type WordTableProps = {
 export default function WordTable({ words, wordSetId, page }: WordTableProps) {
   if (words.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed border-gray-300 bg-elevated px-6 py-12 text-center text-muted dark:border-gray-600">
+      <p className={`${themeClasses.cardDashed} px-6 py-12 text-center text-muted`}>
         This word set has no words.
       </p>
     )
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-elevated shadow-sm dark:border-gray-700">
-      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead className="bg-gray-50 dark:bg-gray-800/50">
+    <div className={themeClasses.tableShell}>
+      <table className={themeClasses.table}>
+        <thead className={themeClasses.tableHead}>
           <tr>
             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted">
               Word
@@ -35,14 +36,14 @@ export default function WordTable({ words, wordSetId, page }: WordTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+        <tbody className={themeClasses.tableBody}>
           {words.map((word) => (
-            <tr key={word.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
+            <tr key={word.id} className={themeClasses.tableRowHover}>
               <td className="px-4 py-3">
                 <Link
                   to={`/words/${word.id}`}
                   state={{ wordSetId, page }}
-                  className="font-medium text-primary hover:underline"
+                  className={`font-medium ${themeClasses.link}`}
                 >
                   {word.content}
                 </Link>
@@ -54,10 +55,7 @@ export default function WordTable({ words, wordSetId, page }: WordTableProps) {
                     <span className="text-muted">—</span>
                   ) : (
                     word.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                      >
+                      <span key={tag} className={themeClasses.tag}>
                         {tag}
                       </span>
                     ))

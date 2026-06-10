@@ -1,3 +1,4 @@
+import { themeClasses } from '../styles/theme'
 import type { Pagination } from '../types/word'
 
 type PaginationProps = {
@@ -22,12 +23,6 @@ export default function PaginationControls({ pagination, onPageChange }: Paginat
   const end = Math.min(page * per_page, total_count)
   const pages = pageRange(page, total_pages)
 
-  const navButtonClass =
-    'rounded border border-gray-300 bg-elevated px-2 py-1 text-xs text-gray-700 enabled:hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:text-gray-200 dark:enabled:hover:bg-gray-800'
-
-  const pageButtonClass =
-    'min-w-7 rounded border border-gray-300 bg-elevated px-1 py-0.5 text-xs tabular-nums text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800'
-
   return (
     <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-muted">
@@ -39,7 +34,7 @@ export default function PaginationControls({ pagination, onPageChange }: Paginat
           type="button"
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className={navButtonClass}
+          className={themeClasses.paginationNavButton}
         >
           Previous
         </button>
@@ -52,8 +47,8 @@ export default function PaginationControls({ pagination, onPageChange }: Paginat
               onClick={() => onPageChange(pageNumber)}
               className={
                 pageNumber === page
-                  ? 'min-w-7 rounded border border-primary bg-primary px-1 py-0.5 text-xs font-medium tabular-nums text-white'
-                  : pageButtonClass
+                  ? themeClasses.paginationPageActive
+                  : themeClasses.paginationPageButton
               }
             >
               {pageNumber}
@@ -64,7 +59,7 @@ export default function PaginationControls({ pagination, onPageChange }: Paginat
           type="button"
           disabled={page >= total_pages}
           onClick={() => onPageChange(page + 1)}
-          className={navButtonClass}
+          className={themeClasses.paginationNavButton}
         >
           Next
         </button>
