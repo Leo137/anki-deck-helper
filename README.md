@@ -10,6 +10,21 @@ You can
 Card example:
 ![Example card](./example_card.png)
 
+## Technology stack
+
+| Layer | Technologies |
+|---|---|
+| Backend | Ruby 3.2, Rails 7, PostgreSQL 15 |
+| Frontend | React 19, TypeScript, Vite 6, Tailwind CSS 4 |
+| API | JSON under `/api/v1/*` (Jbuilder) |
+| Infra | Docker Compose (`postgres`, `app`, `frontend`) |
+
+## Development
+
+The app runs via Docker Compose. In development, the React frontend is available at [http://localhost:5173/](http://localhost:5173/) (Vite dev server). The Rails API listens on port 3000; the frontend proxies `/api` requests to it.
+
+This project is developed with [Cursor](https://cursor.com/). AI-assisted conventions and commands live in `.cursor/rules/` and `AGENTS.md`.
+
 # Prerequisites
 
 * Docker
