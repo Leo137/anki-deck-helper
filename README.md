@@ -37,6 +37,9 @@ https://github.com/scriptin/jmdict-simplified/releases
 
 Unzip/untar, place it under the `dictionaries` subfolder with the name `jmdict-eng-3.5.0.json`.
 
+For Japanese definitions from Wiktionary, place a kaikki.org JSONL extract under `dictionaries/`
+(for example `dictionaries/ja-extract.jsonl`).
+
 ```
 docker volume create --name=word-tracker-gems
 docker-compose run app /bin/bash
@@ -51,8 +54,11 @@ bundle exec rails c
 # Usage
 
 ```
-# Load the dictionary
+# Load the JMDict dictionary (English definitions)
 DictionaryImporter.new.call(language: :en, file: 'dictionaries/jmdict-eng-3.5.0.json')
+
+# Load a Wiktionary JSONL extract (Japanese definitions)
+WiktionaryDictionaryImporter.new.call(language: :ja, file: 'dictionaries/ja-extract.jsonl')
 
 # Assign existing meanings to the English dictionary (after upgrading)
 bundle exec rails dictionary:assign_english_dictionary
