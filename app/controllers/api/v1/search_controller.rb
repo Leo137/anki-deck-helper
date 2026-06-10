@@ -22,8 +22,7 @@ module Api
       private
 
       def search_words
-        Word.includes(dictionary_entry: :readings)
-            .where(id: matching_word_ids)
+        Word.where(id: matching_word_ids)
             .order(:content)
             .page(params[:page])
             .per(per_page(WORDS_PER_PAGE))
@@ -31,10 +30,17 @@ module Api
 
       def matching_word_ids
         ransack_ids = Word.ransack(content_or_kana_cont: @query).result.pluck(:id)
-        reading_ids = Word.joins(dictionary_entry: :readings)
+        reading_ids = Word.joins(dictionary_reading_join)
                           .where('dictionary_readings.text ILIKE ?', like_query)
                           .pluck(:id)
         (ransack_ids + reading_ids).uniq
+      end
+
+      def dictionary_reading_join
+        <<~SQL.squish
+          INNER JOIN dictionary_entries ON dictionary_entries.text = words.content
+          INNER JOIN dictionary_readings ON dictionary_readings.dictionary_entry_id = dictionary_entries.id
+        SQL
       end
 
       def search_word_sets

@@ -11,10 +11,17 @@ module Api
       end
 
       def show
-        @word = Word.includes(:tags, :word_sets, { dictionary_entry: :readings },
-                              word_frequencies: :frequency_table).find(params[:id])
-        Word.preload_dictionary_entries_for!(@word)
-        @dictionary_entries = @word.dictionary_entries
+        @language = requested_language
+        @word = Word.includes(:tags, :word_sets, word_frequencies: :frequency_table).find(params[:id])
+        Word.preload_dictionary_entries_for!(@word, language: @language)
+        @dictionary_entries = @word.dictionary_entries(language: @language)
+        @dictionary_ids = Word.dictionary_ids_for_language(@language)
+      end
+
+      private
+
+      def requested_language
+        (params[:language].presence || 'en').to_sym
       end
     end
   end
