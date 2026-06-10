@@ -31,7 +31,7 @@ class KotobaCardGenerator
   def answers
     entries.map do |entry|
       entry.readings.where(is_kana: true).map(&:text)
-    end.flatten.compact.uniq.join(',')
+    end.flatten.compact.uniq.join(',')[0, 600]
   end
 
   def comment
