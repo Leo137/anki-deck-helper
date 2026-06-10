@@ -1,0 +1,25 @@
+---
+description: PostgreSQL schema and migration conventions
+globs: db/**/*
+alwaysApply: false
+---
+
+# PostgreSQL
+
+- Adapter: `postgresql` (not SQLite despite Gemfile comment)
+- Test DB: `wordtracker-test`, dev: `wordtracker-development`
+- Run migrations inside `app` container:
+  `docker compose exec app bundle exec rails db:migrate`
+- Prepare test schema:
+  `docker compose exec app bash -c 'RAILS_ENV=test bundle exec rails db:test:prepare'`
+
+## Key tables
+
+- `words`, `word_sets`, `word_sets_words` (HABTM, no FK)
+- `frequency_tables`, `frequency_table_entries`, `word_frequencies`
+- `dictionary_entries`, `dictionary_readings`, `dictionary_meanings` + child tables
+
+## Migration tips
+
+- Add indexes for FK columns and frequently filtered columns (`content`, `text`)
+- Scoped uniqueness already used: `frequency_table_entries[content, frequency_table_id]`

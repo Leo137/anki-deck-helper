@@ -1,0 +1,43 @@
+---
+description: Run all dev/test commands inside Docker containers, not on WSL host
+alwaysApply: true
+---
+
+# Docker Development
+
+**Never run `bundle`, `rails`, or `rspec` directly on the WSL host.**
+Use the matching Compose service.
+
+## Services
+
+| Service | Use for |
+|---------|---------|
+| `app` | Rails, Bundler, RSpec, rake, rails console |
+| `frontend` | npm, Vite, TypeScript build |
+| `postgres` | DB (host port `36000` → container `5432`) |
+
+## Commands
+
+```bash
+# Backend
+docker compose exec app bundle install
+docker compose exec app bundle exec rails db:migrate
+docker compose exec app bundle exec rails c
+docker compose exec app bundle exec rspec
+docker compose exec app bundle exec rspec spec/models/word_spec.rb
+
+# One-off (no running app container)
+docker compose run --rm app bundle exec rails db:test:prepare
+
+# Frontend
+docker compose exec frontend npm install
+docker compose exec frontend npm run build
+docker compose exec frontend npm run dev
+```
+
+## Notes
+
+- Gems install to `/gems` volume inside `app`
+- `.env` provides `POSTGRES_*` vars for containers
+- If `spec/` files are root-owned after `rails generate`, fix with:
+  `docker compose exec -u root app chown -R 1000:1000 /app/spec`

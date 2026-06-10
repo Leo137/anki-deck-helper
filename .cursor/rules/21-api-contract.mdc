@@ -1,0 +1,42 @@
+---
+description: Shared JSON API contract between Rails Jbuilder and React types
+globs: app/controllers/api/**/*.rb,app/views/api/**/*.jbuilder,frontend/src/api/**/*.ts,frontend/src/types/**/*.ts
+alwaysApply: false
+---
+
+# API Contract
+
+Base path: `/api/v1`
+
+## Endpoints
+
+| Method | Path | Response |
+|--------|------|----------|
+| GET | `/words` | `Word[]` — optional `?word_set_id=` |
+| GET | `/words/:id` | `Word` + `word_sets[]` + `dictionary_entries[]` |
+| GET | `/word_sets` | `WordSet[]` with `words_count` |
+| GET | `/word_sets/:id` | `WordSet` metadata + `words_count` (no embedded words) |
+| GET | `/word_sets/:id/words` | `{ words, pagination }` |
+| GET | `/search?q=` | `{ query, words, word_sets, pagination }` |
+
+## Word shape
+
+```json
+{
+  "id": 1, "content": "食べる", "kana": "たべる",
+  "word_count": 0, "reading": "たべる",
+  "tags": [{ "id": 1, "name": "counter" }],
+  "frequencies": [{ "table": "jpdb", "frequency": 100, "ratio": 0.5 }]
+}
+```
+
+## Pagination (word set words)
+
+`{ page, per_page, total_count, total_pages }` — defaults: page 1, per_page 50, max 100
+
+## When changing an endpoint
+
+1. Update Jbuilder partial
+2. Update `frontend/src/types/`
+3. Update `frontend/src/api/` wrapper
+4. Add/adjust `spec/requests/api/v1/` example

@@ -1,0 +1,35 @@
+---
+description: Word-tracker stack, repo layout, and cross-cutting conventions
+alwaysApply: true
+---
+
+# Word Tracker
+
+Japanese vocabulary tracker with Anki export. Monorepo in one git root.
+
+## Stack
+
+- **Backend**: Ruby 3.2.2, Rails 7.0, PostgreSQL 15
+- **Frontend**: React 19, TypeScript, Vite 6, Tailwind CSS 4
+- **API**: JSON under `/api/v1/*`, rendered with Jbuilder
+- **Infra**: Docker Compose (`postgres`, `app`, `frontend`)
+
+## Repo layout
+
+| Path | Purpose |
+|------|---------|
+| `app/models/` | ActiveRecord models (`Word`, `WordSet`, `Dictionary::*`) |
+| `app/controllers/api/v1/` | JSON API controllers |
+| `app/views/api/v1/` | Jbuilder templates |
+| `app/service/` | Card generators (Anki, Kotoba, JS) |
+| `spec/` | RSpec + FactoryBot (preferred over `test/`) |
+| `frontend/src/` | React app (`api/`, `components/`, `pages/`, `types/`) |
+| `db/` | Migrations and `schema.rb` |
+
+## Conventions
+
+- API namespace: `Api::V1::*`, inherit `BaseController`
+- 404 responses: `{ "error": "Not found" }`
+- Frontend fetches relative `/api/...` (Vite proxies to Rails on :3000)
+- Minimize diff scope; match existing patterns in the touched layer
+- Do not commit unless explicitly asked

@@ -1,0 +1,32 @@
+---
+description: Rails API conventions for models, controllers, and services
+globs: app/**/*.rb,config/**/*.rb,lib/**/*.rb
+alwaysApply: false
+---
+
+# Rails Backend
+
+## API controllers
+
+- Live under `app/controllers/api/v1/`
+- Inherit `Api::V1::BaseController` (`ActionController::API`)
+- Use `Paginatable` for offset pagination (`page`, `per_page`, max 100)
+- Search uses Ransack + Kaminari in `SearchController`
+- Prefer `includes`/`joins` to avoid N+1 in index/show actions
+
+## Models
+
+- `Word` — core entity; links to `WordSet` (HABTM), `Tag`, `FrequencyTable`, `Dictionary::Entry`
+- `Dictionary::*` — JMDict data under `dictionary_` table prefix
+- Validations: `Word#content` and `Tag#name` are unique; use sequences in factories
+
+## JSON views
+
+- Partials in `app/views/api/v1/`
+- Word payload: `id`, `content`, `kana`, `word_count`, `reading`, `tags`, `frequencies`
+- Dictionary entries: `text`, `readings`, `senses[{tags, definitions}]`
+
+## Style
+
+- `# frozen_string_literal: true` on controllers
+- Keep business logic in models/services, not controllers

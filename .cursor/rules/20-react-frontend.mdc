@@ -1,0 +1,42 @@
+---
+description: React, TypeScript, and Tailwind conventions for the frontend
+globs: frontend/src/**/*
+alwaysApply: false
+---
+
+# React Frontend
+
+## Stack
+
+- Vite + React 19 + TypeScript + Tailwind CSS 4 (`@tailwindcss/vite`)
+- Routing: `react-router-dom` in `App.tsx`
+- Theme: `ThemeContext` + `ThemeToggle` (dark/light)
+
+## Structure
+
+| Path | Role |
+|------|------|
+| `api/` | Fetch wrappers (`client.ts`, `words.ts`, `wordSets.ts`, `search.ts`) |
+| `types/` | TS interfaces matching API JSON |
+| `components/` | Reusable UI (`WordTable`, `SearchBar`, `PaginationControls`, …) |
+| `pages/` | Route-level views (`HomePage`, `WordDetailPage`, `WordSetPage`) |
+| `hooks/` | Shared hooks (`useDebouncedValue`) |
+
+## API client
+
+- `request<T>(path)` in `api/client.ts` — throws on non-OK
+- Use relative paths (`/api/v1/words`) — Vite proxies to Rails
+
+## Style
+
+- Functional components + hooks
+- Colocate types in `types/`; keep components presentational where possible
+- Tailwind utility classes; global styles in `index.css`
+- Match existing component naming and file layout
+
+## Commands (in `frontend` container)
+
+```bash
+docker compose exec frontend npm run dev
+docker compose exec frontend npm run build
+```

@@ -1,0 +1,41 @@
+---
+description: RSpec and FactoryBot conventions for backend tests
+globs: spec/**/*
+alwaysApply: false
+---
+
+# RSpec Testing
+
+## Setup
+
+- Specs in `spec/` (not `test/` — Minitest is legacy)
+- Factories in `spec/factories/` via FactoryBot
+- Shoulda-matchers for associations/validations
+- Support: `spec/support/factory_bot.rb`, `shoulda_matchers.rb`
+
+## Run
+
+```bash
+docker compose exec app bundle exec rspec
+docker compose exec app bundle exec rspec spec/requests/api/v1/words_spec.rb
+```
+
+## Model specs
+
+- Test: validations, associations, public instance/class methods
+- Cover edge cases: empty collections, zero division, scoped uniqueness, `~` counter prefix
+- Use `build` vs `create` intentionally (`tag!` builds unsaved `word_tags`)
+
+## Request specs (preferred over controller specs)
+
+- Type: `type: :request`
+- Assert status, JSON shape, pagination, 404 `{ error: "Not found" }`
+- Use factories — avoid YAML fixtures (duplicate `content` values break uniqueness)
+
+## Factory patterns
+
+```ruby
+factory :word do
+  sequence(:content) { |n| "word#{n}" }
+end
+```
