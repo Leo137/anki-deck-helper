@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { fetchWord, type WordDetail } from '../api/words'
+import DefinitionLanguagePicker from '../components/DefinitionLanguagePicker'
 import DictionaryEntryCard from '../components/DictionaryEntryCard'
 import { themeClasses } from '../styles/theme'
 import type { WordDetailLocationState } from '../types/word'
@@ -23,32 +24,69 @@ export default function WordDetailPage() {
   const navigationState = location.state as WordDetailLocationState | null
   const back = backLink(navigationState)
 
+  const [language, setLanguage] = useState('en')
   const [word, setWord] = useState<WordDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  const [definitionsLoading, setDefinitionsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    setLanguage('en')
+    setWord(null)
+    setLoading(true)
+    setError(null)
+  }, [id])
 
   useEffect(() => {
     if (!id) return
 
-    fetchWord(Number(id))
-      .then(setWord)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [id])
+    let cancelled = false
+    const isInitialLoad = word === null
+    if (isInitialLoad) {
+      setLoading(true)
+    } else {
+      setDefinitionsLoading(true)
+    }
 
-  if (loading) {
-    return <p className="text-muted">Loading word…</p>
-  }
+    fetchWord(Number(id), language)
+      .then((data) => {
+        if (!cancelled) {
+          setWord(data)
+        }
+      })
+      .catch((err: Error) => {
+        if (!cancelled) {
+          setError(err.message)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false)
+          setDefinitionsLoading(false)
+        }
+      })
 
-  if (error || !word) {
+    return () => {
+      cancelled = true
+    }
+  }, [id, language])
+
+  const wordId = Number(id)
+  const isStaleWord = word !== null && word.id !== wordId
+
+  if (error) {
     return (
       <div>
         <Link to={back.to} className={themeClasses.linkSm}>
           {back.label}
         </Link>
-        <div className={`mt-4 ${themeClasses.alertError}`}>{error ?? 'Word not found'}</div>
+        <div className={`mt-4 ${themeClasses.alertError}`}>{error}</div>
       </div>
     )
+  }
+
+  if (loading || isStaleWord || !word) {
+    return <p className="text-muted">Loading word…</p>
   }
 
   return (
@@ -56,6 +94,16 @@ export default function WordDetailPage() {
       <Link to={back.to} className={themeClasses.linkSm}>
         {back.label}
       </Link>
+
+      <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <DefinitionLanguagePicker
+          languages={word.available_languages}
+          value={language}
+          onChange={setLanguage}
+          disabled={definitionsLoading}
+        />
+        {definitionsLoading && <p className="text-sm text-muted">Loading definitions…</p>}
+      </div>
 
       <div className="mt-4 space-y-4">
         {word.dictionary_entries.length > 0 ? (

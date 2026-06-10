@@ -77,6 +77,7 @@ RSpec.describe 'Api::V1::Words', type: :request do
       body = JSON.parse(response.body)
       expect(body['content']).to eq('食べる')
       expect(body['word_sets']).to eq([{ 'id' => word_set.id, 'name' => 'core' }])
+      expect(body['available_languages']).to eq(['en'])
       expect(body['dictionary_entries'].first).to include(
         'text' => '食べる',
         'readings' => ['たべる'],
@@ -97,6 +98,35 @@ RSpec.describe 'Api::V1::Words', type: :request do
 
       definitions = JSON.parse(response.body)['dictionary_entries'].first['senses'].flat_map { |s| s['definitions'] }
       expect(definitions).not_to include('manger')
+    end
+
+    it 'returns available definition languages for the word' do
+      word = create(:word, content: '食べる')
+      entry = create(:dictionary_entry, text: word.content)
+      french = create(:language, code: 'fr')
+      french_dictionary = create(:dictionary, name: 'french', language: french)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+      french_meaning = create(:dictionary_meaning, dictionary_entry: entry, dictionary: french_dictionary)
+      create(:dictionary_meaning_definition, dictionary_meaning: french_meaning, text: 'manger')
+
+      get "/api/v1/words/#{word.id}", as: :json
+
+      expect(JSON.parse(response.body)['available_languages']).to eq(%w[en fr])
+    end
+
+    it 'returns definitions for the requested language' do
+      word = create(:word, content: '食べる')
+      entry = create(:dictionary_entry, text: word.content)
+      french = create(:language, code: 'fr')
+      french_dictionary = create(:dictionary, name: 'french', language: french)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+      french_meaning = create(:dictionary_meaning, dictionary_entry: entry, dictionary: french_dictionary)
+      create(:dictionary_meaning_definition, dictionary_meaning: french_meaning, text: 'manger')
+
+      get "/api/v1/words/#{word.id}", params: { language: 'fr' }, as: :json
+
+      definitions = JSON.parse(response.body)['dictionary_entries'].first['senses'].flat_map { |s| s['definitions'] }
+      expect(definitions).to eq(['manger'])
     end
 
     it 'returns not found for a missing word' do

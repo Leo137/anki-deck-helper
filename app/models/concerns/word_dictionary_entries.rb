@@ -36,6 +36,17 @@ module WordDictionaryEntries
     @preloaded_dictionary_entries || dictionary_entries(language:).to_a
   end
 
+  def definition_languages
+    entry_ids = dictionary_entry_ids_for_content.uniq
+    return [] if entry_ids.empty?
+
+    Language.joins(dictionaries: :meanings)
+            .where(dictionary_meanings: { dictionary_entry_id: entry_ids })
+            .distinct
+            .order(:code)
+            .pluck(:code)
+  end
+
   module ClassMethods
     def preload_dictionary_entries_for!(words, language: :en)
       words = Array(words)
