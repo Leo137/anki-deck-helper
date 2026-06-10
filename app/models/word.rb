@@ -6,6 +6,8 @@ class Word < ApplicationRecord
   validates :content, presence: true, uniqueness: true
 
   has_and_belongs_to_many :word_sets
+  has_many :deck_words, dependent: :destroy
+  has_many :decks, through: :deck_words
   has_many :word_frequencies, dependent: :destroy
   has_many :word_tags, dependent: :destroy
   has_many :frequency_tables, through: :word_frequencies

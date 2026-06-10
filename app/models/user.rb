@@ -17,6 +17,8 @@ class User < ApplicationRecord
     message: 'must be at least 8 characters and include one uppercase letter and one special character'
   }, if: :password_required?
 
+  has_many :decks, dependent: :destroy
+
   def self.authenticate_by_email(email, password)
     user = find_for_authentication(email: email.downcase)
     user if user&.valid_password?(password)

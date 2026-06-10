@@ -10,9 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_10_130001) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_10_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "deck_words", force: :cascade do |t|
+    t.bigint "deck_id", null: false
+    t.bigint "word_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["deck_id", "position"], name: "index_deck_words_on_deck_id_and_position", unique: true
+    t.index ["deck_id", "word_id"], name: "index_deck_words_on_deck_id_and_word_id", unique: true
+    t.index ["deck_id"], name: "index_deck_words_on_deck_id"
+    t.index ["word_id"], name: "index_deck_words_on_word_id"
+  end
+
+  create_table "decks", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id", "name"], name: "index_decks_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_decks_on_user_id"
+  end
 
   create_table "dictionaries", force: :cascade do |t|
     t.string "name", null: false
@@ -175,6 +196,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_10_130001) do
     t.index ["content"], name: "index_words_on_content"
   end
 
+  add_foreign_key "deck_words", "decks"
+  add_foreign_key "deck_words", "words"
+  add_foreign_key "decks", "users"
   add_foreign_key "dictionaries", "languages"
   add_foreign_key "dictionary_meaning_definitions", "dictionary_meanings"
   add_foreign_key "dictionary_meaning_fields", "dictionary_meanings"
