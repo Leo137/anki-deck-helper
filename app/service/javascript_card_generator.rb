@@ -3,12 +3,13 @@
 # Creates simple dictionary entry from a word record, to
 # be used in a mini SRS web application
 class JavascriptCardGenerator
-  attr_accessor :word
+  attr_accessor :word, :dictionary
 
   delegate :content, to: :word
 
-  def initialize(word)
+  def initialize(word, dictionary:)
     @word = word
+    @dictionary = dictionary
   end
 
   def call
@@ -35,7 +36,7 @@ class JavascriptCardGenerator
 
   def meaning
     entries.map do |entry|
-      entry.meanings.map do |meaning|
+      entry.meanings_for(dictionary:).map do |meaning|
         meaning.definitions.map(&:text)
       end.flatten.compact.uniq
     end.flatten.compact.uniq.join(', ')
@@ -44,6 +45,7 @@ class JavascriptCardGenerator
   def entries
     @entries ||=
       Dictionary::Entry.where(text: content).to_a
-                       .flatten.compact.uniq.sort_by(&:jmdict_id)
+                       .select { |entry| entry.meanings.any? { |m| m.dictionary_id == dictionary.id } }
+                       .sort_by(&:jmdict_id)
   end
 end

@@ -2,12 +2,13 @@
 
 # Creates kotoba card array[string] from a word record
 class KotobaCardGenerator
-  attr_accessor :word
+  attr_accessor :word, :dictionary
 
   delegate :content, to: :word
 
-  def initialize(word)
+  def initialize(word, dictionary:)
     @word = word
+    @dictionary = dictionary
   end
 
   def call
@@ -36,7 +37,7 @@ class KotobaCardGenerator
 
   def comment
     entries.map do |entry|
-      entry.meanings.map do |meaning|
+      entry.meanings_for(dictionary:).map do |meaning|
         meaning.definitions.map(&:text)
       end.flatten.compact.uniq
     end.flatten.compact.uniq.join(',').truncate(590)
@@ -54,6 +55,8 @@ class KotobaCardGenerator
     @entries ||= (
         Dictionary::Entry.where(text: content) +
         Dictionary::Reading.where(text: content).map(&:dictionary_entry)
-      ).flatten.compact.uniq.sort_by(&:jmdict_id)
+      ).flatten.compact.uniq
+       .select { |entry| entry.meanings.any? { |m| m.dictionary_id == dictionary.id } }
+       .sort_by(&:jmdict_id)
   end
 end

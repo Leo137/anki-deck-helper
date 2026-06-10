@@ -2,11 +2,12 @@
 
 # Creates anki deck based on a list of words
 class AnkiDeckGenerator
-  attr_accessor :words, :deck_name
+  attr_accessor :words, :deck_name, :dictionary
 
-  def initialize(words, deck_name)
+  def initialize(words, deck_name, dictionary:)
     @words = words
     @deck_name = deck_name
+    @dictionary = dictionary
   end
 
   def call
@@ -32,6 +33,6 @@ class AnkiDeckGenerator
   end
 
   def generate_cards
-    words.map(&:to_anki_card)
+    words.map { |word| word.to_anki_card(dictionary:) }
   end
 end
