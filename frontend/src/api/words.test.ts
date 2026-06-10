@@ -17,6 +17,7 @@ describe('fetchWord', () => {
       frequencies: [],
       word_sets: [{ id: 1, name: 'Core' }],
       dictionary_entries: [],
+      available_languages: [],
     }
 
     vi.stubGlobal(

@@ -1,4 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Route, Routes, type MemoryRouterProps } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as wordsApi from '../api/words'
@@ -14,29 +15,32 @@ function renderWordDetailPage(route = '/words/5', routerProps?: Omit<MemoryRoute
   )
 }
 
+const baseWord = {
+  id: 5,
+  content: '食べる',
+  kana: 'たべる',
+  reading: 'たべる',
+  word_count: 8,
+  tags: ['verb'],
+  frequencies: [{ table: 'jpdb', frequency: 100, ratio: 0.5 }],
+  word_sets: [{ id: 1, name: 'Core' }],
+  available_languages: ['en'],
+  dictionary_entries: [
+    {
+      text: '食べる',
+      readings: ['たべる'],
+      senses: [{ tags: ['v5r'], definitions: ['to eat'] }],
+    },
+  ],
+}
+
 describe('WordDetailPage', () => {
   afterEach(() => {
     vi.restoreAllMocks()
   })
 
   it('shows word details and dictionary entries', async () => {
-    vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue({
-      id: 5,
-      content: '食べる',
-      kana: 'たべる',
-      reading: 'たべる',
-      word_count: 8,
-      tags: ['verb'],
-      frequencies: [{ table: 'jpdb', frequency: 100, ratio: 0.5 }],
-      word_sets: [{ id: 1, name: 'Core' }],
-      dictionary_entries: [
-        {
-          text: '食べる',
-          readings: ['たべる'],
-          senses: [{ tags: ['v5r'], definitions: ['to eat'] }],
-        },
-      ],
-    })
+    vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue(baseWord)
 
     renderWordDetailPage()
 
@@ -49,6 +53,53 @@ describe('WordDetailPage', () => {
     expect(screen.getByText('to eat')).toBeInTheDocument()
     expect(screen.getByText('verb')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Core' })).toHaveAttribute('href', '/word-sets/1')
+    expect(wordsApi.fetchWord).toHaveBeenCalledWith(5, 'en')
+  })
+
+  it('shows a language picker and refetches definitions when the language changes', async () => {
+    const user = userEvent.setup()
+    const fetchWord = vi
+      .spyOn(wordsApi, 'fetchWord')
+      .mockResolvedValueOnce({
+        ...baseWord,
+        available_languages: ['en', 'fr'],
+      })
+      .mockResolvedValueOnce({
+        ...baseWord,
+        available_languages: ['en', 'fr'],
+        dictionary_entries: [
+          {
+            text: '食べる',
+            readings: ['たべる'],
+            senses: [{ tags: [], definitions: ['manger'] }],
+          },
+        ],
+      })
+
+    renderWordDetailPage()
+
+    await waitFor(() => {
+      expect(screen.getByText('to eat')).toBeInTheDocument()
+    })
+
+    await user.selectOptions(screen.getByLabelText(/definitions/i), 'fr')
+
+    await waitFor(() => {
+      expect(fetchWord).toHaveBeenLastCalledWith(5, 'fr')
+      expect(screen.getByText('manger')).toBeInTheDocument()
+    })
+  })
+
+  it('hides the language picker when only one language is available', async () => {
+    vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue(baseWord)
+
+    renderWordDetailPage()
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: '食べる' })).toBeInTheDocument()
+    })
+
+    expect(screen.queryByLabelText(/definitions/i)).not.toBeInTheDocument()
   })
 
   it('links back to the originating word set when navigation state is present', async () => {
@@ -61,6 +112,7 @@ describe('WordDetailPage', () => {
       tags: [],
       frequencies: [],
       word_sets: [],
+      available_languages: [],
       dictionary_entries: [],
     })
 
