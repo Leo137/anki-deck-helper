@@ -67,6 +67,9 @@ WordSetImporter.new('comprehensive-japanese', 'word-lists/comprehensive-japanese
 WordSetImporter.new('kindle', 'word-lists/kindle').call
 WordSetImporter.new('shirokuma-cafe', 'word-lists/shirokuma-cafe').call
 
+# Import word sets from a Takoboto CSV export (one WordSet per List column)
+TakobotoWordSetImporter.new('word-lists/takoboto-export.csv').call
+
 # Calculate the frequency of words from a frequency list
 FrequencyCalculator.new('bccwj', Word.all).call
 FrequencyCalculator.new('jpdb', Word.all).call
