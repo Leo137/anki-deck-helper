@@ -27,11 +27,28 @@ This project is developed with [Cursor](https://cursor.com/). AI-assisted conven
 
 ### Word definitions by language
 
-On the word detail page, dictionary definitions are shown for a selected language. English (`en`) is the default.
+On the word detail page, dictionary definitions are shown for a selected language. English (`en`) is the default for guests.
 
 - Import glossaries per language (for example JMDict English via `DictionaryImporter`, or Wiktionary Japanese via `WiktionaryDictionaryImporter`).
 - `GET /api/v1/words/:id?language=en` returns `dictionary_entries` for the requested language and `available_languages` listing every language that has definitions for that word.
 - The frontend shows a language picker when more than one language is available; changing the selection refetches definitions for that language.
+- Signed-in users can set a preferred definition language under **Preferences**; word pages use that language by default instead of `en`.
+
+### Authentication
+
+Users can register and log in from the top bar. The API uses Devise with JWT bearer tokens.
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/api/v1/auth/signup` | Register (`email`, `username`, `password`, `password_confirmation`) |
+| POST | `/api/v1/auth/login` | Log in (`email`, `password`) — returns JWT in `Authorization` header |
+| GET | `/api/v1/auth/me` | Current user (requires JWT) |
+| DELETE | `/api/v1/auth/logout` | Revoke JWT |
+| GET/PATCH | `/api/v1/users/preferences` | Read/update `preferred_language` |
+
+Passwords must be at least 8 characters and include one uppercase letter and one special character.
+
+Set `DEVISE_JWT_SECRET_KEY` in production (development/test use a default).
 
 # Prerequisites
 
