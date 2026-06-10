@@ -12,15 +12,15 @@ RSpec.describe TakobotoWordSetImporter do
       favorites = WordSet.find_by!(name: 'Favorites', origin: :takoboto)
       history = WordSet.find_by!(name: 'History', origin: :takoboto)
 
-      expect(favorites.words.pluck(:content)).to contain_exactly('こしつ', 'ちんたいじゅうたく')
-      expect(history.words.pluck(:content)).to contain_exactly('きたいかん', 'たさい')
+      expect(favorites.words.pluck(:content)).to contain_exactly('固執', '賃貸住宅')
+      expect(history.words.pluck(:content)).to contain_exactly('期待感', '多彩')
     end
 
-    it 'stores only the first reading from the Word column' do
+    it 'prefers kanji forms from the Word column' do
       described_class.new(csv_path).call
 
-      expect(Word.find_by!(content: 'こしつ')).to be_present
-      expect(Word.find_by(content: '固執')).to be_nil
+      expect(Word.find_by!(content: '固執')).to be_present
+      expect(Word.find_by(content: 'こしつ')).to be_nil
       expect(Word.find_by(content: 'こしゅう')).to be_nil
     end
 
@@ -35,7 +35,7 @@ RSpec.describe TakobotoWordSetImporter do
       takoboto_set = WordSet.find_by!(name: 'Favorites', origin: :takoboto)
 
       expect(normal_set.words).to contain_exactly(normal_word)
-      expect(takoboto_set.words.pluck(:content)).to contain_exactly('こしつ', 'ちんたいじゅうたく')
+      expect(takoboto_set.words.pluck(:content)).to contain_exactly('固執', '賃貸住宅')
     end
 
     it 'reads list names from CSV files with a UTF-8 BOM' do
@@ -44,8 +44,8 @@ RSpec.describe TakobotoWordSetImporter do
       favorites = WordSet.find_by!(name: 'Favorites', origin: :takoboto)
       history = WordSet.find_by!(name: 'History', origin: :takoboto)
 
-      expect(favorites.words.pluck(:content)).to eq(['こしつ'])
-      expect(history.words.pluck(:content)).to eq(['きたいかん'])
+      expect(favorites.words.pluck(:content)).to eq(['固執'])
+      expect(history.words.pluck(:content)).to eq(['期待感'])
       expect(WordSet.where(name: '', origin: :takoboto)).to be_empty
     end
 
@@ -58,19 +58,24 @@ RSpec.describe TakobotoWordSetImporter do
 
       expect(second_set.id).to eq(first_set.id)
       expect(WordSet.where(name: 'History', origin: :takoboto).count).to eq(1)
-      expect(Word.find_by!(content: 'きたいかん').word_count).to eq(2)
+      expect(Word.find_by!(content: '期待感').word_count).to eq(2)
     end
   end
 
-  describe '#extract_first_reading' do
+  describe '#extract_word_content' do
     let(:importer) { described_class.new(csv_path) }
 
-    it 'returns the first reading when multiple comma-separated values are present' do
-      expect(importer.send(:extract_first_reading, '固執, こしつ, こしゅう')).to eq('こしつ')
+    it 'returns the first kanji form when one is present' do
+      expect(importer.send(:extract_word_content, '固執, こしつ, こしゅう')).to eq('固執')
+      expect(importer.send(:extract_word_content, '依存度, いぞんど')).to eq('依存度')
     end
 
-    it 'returns the sole value when no reading is present' do
-      expect(importer.send(:extract_first_reading, '単語')).to eq('単語')
+    it 'returns the first reading when no kanji form is present' do
+      expect(importer.send(:extract_word_content, 'アオハル, あおはる')).to eq('あおはる')
+    end
+
+    it 'returns the sole value when only one segment is present' do
+      expect(importer.send(:extract_word_content, '単語')).to eq('単語')
     end
   end
 end

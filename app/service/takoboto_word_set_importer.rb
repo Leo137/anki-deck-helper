@@ -4,7 +4,8 @@ require 'csv'
 
 # Imports word sets from a Takoboto CSV export.
 # Each distinct List value becomes its own WordSet (origin: takoboto).
-# Only the first reading from the Word column is stored; translations are ignored.
+# Only the Word column is stored; kanji forms are preferred over kana readings.
+# Translations are ignored.
 class TakobotoWordSetImporter
   attr_accessor :filepath, :word_sets
 
@@ -26,7 +27,7 @@ class TakobotoWordSetImporter
     return if list_name.blank?
 
     word_set = word_set_for(list_name)
-    content = extract_first_reading(column_value(row, 'Word'))
+    content = extract_word_content(column_value(row, 'Word'))
     return if content.blank?
 
     word = Word.find_or_create_by(content:)
@@ -52,10 +53,17 @@ class TakobotoWordSetImporter
     header.to_s.delete_prefix("\uFEFF").strip
   end
 
-  def extract_first_reading(word_field)
+  def extract_word_content(word_field)
     parts = word_field.to_s.split(',').map(&:strip).reject(&:empty?)
     return if parts.empty?
 
+    kanji_form = parts.find { |part| contains_kanji?(part) }
+    return kanji_form if kanji_form
+
     parts.length > 1 ? parts[1] : parts.first
+  end
+
+  def contains_kanji?(text)
+    text.match?(/\p{Han}/)
   end
 end
