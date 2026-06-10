@@ -3,8 +3,11 @@ import { Link, useLocation, useParams } from 'react-router-dom'
 import { fetchWord, type WordDetail } from '../api/words'
 import DefinitionLanguagePicker from '../components/DefinitionLanguagePicker'
 import DictionaryEntryCard from '../components/DictionaryEntryCard'
+import { useAuth } from '../contexts/AuthContext'
 import { themeClasses } from '../styles/theme'
 import type { WordDetailLocationState } from '../types/word'
+
+const DEFAULT_LANGUAGE = 'en'
 
 function backLink(state: WordDetailLocationState | null) {
   if (state?.wordSetId) {
@@ -21,24 +24,28 @@ function backLink(state: WordDetailLocationState | null) {
 export default function WordDetailPage() {
   const { id } = useParams<{ id: string }>()
   const location = useLocation()
+  const { user, loading: authLoading } = useAuth()
   const navigationState = location.state as WordDetailLocationState | null
   const back = backLink(navigationState)
+  const defaultLanguage = user?.preferred_language ?? DEFAULT_LANGUAGE
 
-  const [language, setLanguage] = useState('en')
+  const [language, setLanguage] = useState(defaultLanguage)
   const [word, setWord] = useState<WordDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [definitionsLoading, setDefinitionsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLanguage('en')
+    if (authLoading) return
+
+    setLanguage(defaultLanguage)
     setWord(null)
     setLoading(true)
     setError(null)
-  }, [id])
+  }, [id, defaultLanguage, authLoading])
 
   useEffect(() => {
-    if (!id) return
+    if (!id || authLoading) return
 
     let cancelled = false
     const isInitialLoad = word === null
@@ -69,7 +76,7 @@ export default function WordDetailPage() {
     return () => {
       cancelled = true
     }
-  }, [id, language])
+  }, [id, language, authLoading])
 
   const wordId = Number(id)
   const isStaleWord = word !== null && word.id !== wordId
@@ -85,7 +92,7 @@ export default function WordDetailPage() {
     )
   }
 
-  if (loading || isStaleWord || !word) {
+  if (authLoading || loading || isStaleWord || !word) {
     return <p className="text-muted">Loading word…</p>
   }
 
