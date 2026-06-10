@@ -12,6 +12,7 @@ Devise.setup do |config|
   config.email_regexp = /\A[^@\s]+@[^@\s]+\z/
   config.reset_password_within = 6.hours
   config.sign_out_via = :delete
+  config.navigational_formats = []
   config.responder.error_status = :unprocessable_entity
   config.responder.redirect_status = :see_other
 

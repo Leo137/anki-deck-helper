@@ -4,6 +4,8 @@ module Api
   module V1
     module Auth
       class RegistrationsController < Devise::RegistrationsController
+        include ApiCsrfExempt
+
         respond_to :json
 
         private

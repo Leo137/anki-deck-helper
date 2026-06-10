@@ -15,6 +15,18 @@ RSpec.describe 'Api::V1::Auth::Registrations', type: :request do
       }
     end
 
+    it 'creates a user when the browser Origin differs from the proxied base URL' do
+      post '/api/v1/auth/signup',
+           params: valid_params,
+           headers: {
+             'Origin' => 'http://localhost:5173',
+             'HTTP_HOST' => 'app:3000'
+           },
+           as: :json
+
+      expect(response).to have_http_status(:created)
+    end
+
     it 'creates a user and returns a JWT' do
       post '/api/v1/auth/signup', params: valid_params, as: :json
 
