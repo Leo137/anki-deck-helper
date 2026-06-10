@@ -16,8 +16,9 @@ alwaysApply: false
 
 ## Models
 
-- `Word` — core entity; links to `WordSet` (HABTM), `Tag`, `FrequencyTable`, `Dictionary::Entry`
-- `Dictionary::*` — JMDict data under `dictionary_` table prefix
+- `Word` — core entity; links to `WordSet` (HABTM), `Tag`, `FrequencyTable`, `Dictionary::Entry` (text match, `has_many`)
+- `Language`, `Dictionary` — glossary metadata; `Dictionary::Meaning` belongs to `Dictionary`
+- `Dictionary::*` — JMDict entry/reading/meaning data (`dictionary_entries`, etc.)
 - Validations: `Word#content` and `Tag#name` are unique; use sequences in factories
 
 ## JSON views
