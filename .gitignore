@@ -35,5 +35,9 @@
 
 /public/assets
 
+# Frontend
+/frontend/node_modules
+/frontend/dist
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
