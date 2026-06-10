@@ -27,3 +27,7 @@ Metrics/BlockLength:
 
 Metrics/ClassLength:
   Max: 120
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - app/models/dictionary/meaning/**/*
