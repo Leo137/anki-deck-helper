@@ -45,10 +45,15 @@ Users can register and log in from the top bar. The API uses Devise with JWT bea
 | GET | `/api/v1/auth/me` | Current user (requires JWT) |
 | DELETE | `/api/v1/auth/logout` | Revoke JWT |
 | GET/PATCH | `/api/v1/users/preferences` | Read/update `preferred_language` |
+| GET | `/api/v1/decks` | Current user's decks with `words_count` (requires JWT) |
 
 Passwords must be at least 8 characters and include one uppercase letter and one special character.
 
 Set `DEVISE_JWT_SECRET_KEY` in production (development/test use a default).
+
+### Decks
+
+Decks are user-owned, ordered word lists intended for spaced repetition study (similar to Word Sets, but scoped per user and sorted by position). Signed-in users see their decks on the home page alongside Word Sets. Deck creation is not yet exposed in the UI or API.
 
 # Prerequisites
 

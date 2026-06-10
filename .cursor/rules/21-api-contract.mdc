@@ -17,6 +17,7 @@ Base path: `/api/v1`
 | GET | `/word_sets` | `WordSet[]` with `words_count` |
 | GET | `/word_sets/:id` | `WordSet` metadata + `words_count` (no embedded words) |
 | GET | `/word_sets/:id/words` | `{ words, pagination }` — optional `?language=en` |
+| GET | `/decks` | `Deck[]` with `words_count` — JWT required |
 | GET | `/search?q=` | `{ query, words, word_sets, pagination }` |
 
 ## Word shape
