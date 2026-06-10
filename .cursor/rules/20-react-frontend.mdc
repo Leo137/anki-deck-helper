@@ -39,4 +39,5 @@ alwaysApply: false
 ```bash
 docker compose exec frontend npm run dev
 docker compose exec frontend npm run build
+docker compose exec frontend npm test
 ```
