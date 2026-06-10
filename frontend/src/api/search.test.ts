@@ -22,6 +22,9 @@ describe('search', () => {
     )
 
     await expect(search('食べ')).resolves.toEqual(results)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/search?q=%E9%A3%9F%E3%81%B9')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/search?q=%E9%A3%9F%E3%81%B9',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 })

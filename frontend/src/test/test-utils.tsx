@@ -1,5 +1,6 @@
 import { render, type RenderOptions } from '@testing-library/react'
 import { MemoryRouter, type MemoryRouterProps } from 'react-router-dom'
+import { AuthProvider } from '../contexts/AuthContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
 
 type ProviderOptions = {
@@ -14,9 +15,11 @@ export function renderWithProviders(
 ) {
   return render(
     <ThemeProvider>
-      <MemoryRouter initialEntries={[route]} {...routerProps}>
-        {ui}
-      </MemoryRouter>
+      <AuthProvider>
+        <MemoryRouter initialEntries={[route]} {...routerProps}>
+          {ui}
+        </MemoryRouter>
+      </AuthProvider>
     </ThemeProvider>,
     options,
   )

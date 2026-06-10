@@ -16,7 +16,11 @@ describe('request', () => {
     )
 
     await expect(request('/api/v1/words/1')).resolves.toEqual({ id: 1 })
-    expect(fetch).toHaveBeenCalledWith('/api/v1/words/1')
+    expect(fetch).toHaveBeenCalledWith('/api/v1/words/1', {
+      method: 'GET',
+      headers: expect.any(Headers),
+      body: undefined,
+    })
   })
 
   it('throws "Not found" on 404', async () => {
