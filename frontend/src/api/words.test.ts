@@ -1,0 +1,33 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { fetchWord } from './words'
+
+describe('fetchWord', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('fetches a word by id', async () => {
+    const word = {
+      id: 42,
+      content: '食べる',
+      kana: 'たべる',
+      reading: 'たべる',
+      word_count: 3,
+      tags: ['verb'],
+      frequencies: [],
+      word_sets: [{ id: 1, name: 'Core' }],
+      dictionary_entries: [],
+    }
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(word),
+      }),
+    )
+
+    await expect(fetchWord(42)).resolves.toEqual(word)
+    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42')
+  })
+})

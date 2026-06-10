@@ -2,7 +2,7 @@
 
 - Rules live in `.cursor/rules/`
 - Backend changes → run `docker compose exec app bundle exec rspec`
-- Frontend changes → run `docker compose exec frontend npm run build`
+- Frontend changes → run `docker compose exec frontend npm run build` and `docker compose exec frontend npm test`
 - Full-stack API changes → update Jbuilder + TS types + request spec
 
 ## Quick reference
@@ -10,5 +10,5 @@
 | Layer | Container | Test command |
 |-------|-----------|--------------|
 | Rails API | `app` | `docker compose exec app bundle exec rspec` |
-| React UI | `frontend` | `docker compose exec frontend npm run build` |
+| React UI | `frontend` | `docker compose exec frontend npm run build`, `docker compose exec frontend npm test` |
 | Database | `app` | `docker compose exec app bundle exec rails db:migrate` |
