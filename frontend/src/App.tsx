@@ -1,7 +1,17 @@
+import { Route, Routes } from 'react-router-dom'
+import Layout from './components/Layout'
+import HomePage from './pages/HomePage'
+import WordSetPage from './pages/WordSetPage'
+import WordDetailPage from './pages/WordDetailPage'
+
 export default function App() {
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-surface">
-      <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Word Tracker</h1>
-    </div>
+    <Layout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/word-sets/:id" element={<WordSetPage />} />
+        <Route path="/words/:id" element={<WordDetailPage />} />
+      </Routes>
+    </Layout>
   )
 }
