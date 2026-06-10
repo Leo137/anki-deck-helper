@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_08_17_012940) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_10_120002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "dictionaries", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "language_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["language_id"], name: "index_dictionaries_on_language_id"
+    t.index ["name", "language_id"], name: "index_dictionaries_on_name_and_language_id", unique: true
+  end
 
   create_table "dictionary_entries", force: :cascade do |t|
     t.string "text"
@@ -58,7 +67,9 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_17_012940) do
     t.bigint "dictionary_entry_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "dictionary_id"
     t.index ["dictionary_entry_id"], name: "index_dictionary_meanings_on_dictionary_entry_id"
+    t.index ["dictionary_id"], name: "index_dictionary_meanings_on_dictionary_id"
   end
 
   create_table "dictionary_readings", force: :cascade do |t|
@@ -88,6 +99,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_17_012940) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "max_frequency"
+  end
+
+  create_table "languages", force: :cascade do |t|
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_languages_on_code", unique: true
   end
 
   create_table "tags", force: :cascade do |t|
@@ -138,10 +156,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_08_17_012940) do
     t.index ["content"], name: "index_words_on_content"
   end
 
+  add_foreign_key "dictionaries", "languages"
   add_foreign_key "dictionary_meaning_definitions", "dictionary_meanings"
   add_foreign_key "dictionary_meaning_fields", "dictionary_meanings"
   add_foreign_key "dictionary_meaning_misc_tags", "dictionary_meanings"
   add_foreign_key "dictionary_meaning_part_of_speeches", "dictionary_meanings"
+  add_foreign_key "dictionary_meanings", "dictionaries"
   add_foreign_key "dictionary_meanings", "dictionary_entries"
   add_foreign_key "dictionary_readings", "dictionary_entries"
   add_foreign_key "frequency_table_entries", "frequency_tables"
