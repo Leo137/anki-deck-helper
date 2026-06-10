@@ -4,7 +4,11 @@ module Api
   module V1
     module Auth
       class SessionsController < Devise::SessionsController
+        include ApiCsrfExempt
+
         respond_to :json
+
+        skip_before_action :verify_signed_out_user, only: :destroy
 
         before_action :authenticate_user!, only: :show
 
@@ -16,18 +20,18 @@ module Api
           end
         end
 
+        def destroy
+          user = warden.authenticate(scope: :user)
+          return render json: { error: 'Unauthorized' }, status: :unauthorized unless user
+
+          sign_out(user)
+          render json: { message: 'Logged out successfully' }
+        end
+
         private
 
         def respond_with(resource, _opts = {})
           render json: user_payload(resource)
-        end
-
-        def respond_to_on_destroy
-          if current_user
-            render json: { message: 'Logged out successfully' }
-          else
-            render json: { error: 'Unauthorized' }, status: :unauthorized
-          end
         end
 
         def sign_in_params
