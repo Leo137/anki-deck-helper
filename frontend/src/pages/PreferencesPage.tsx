@@ -82,7 +82,7 @@ export default function PreferencesPage() {
             id="preferred-language"
             value={preferredLanguage}
             onChange={(event) => setPreferredLanguage(event.target.value)}
-            className={`mt-2 ${themeClasses.input}`}
+            className={`mt-2 ${themeClasses.select}`}
           >
             {availableLanguages.map((code) => (
               <option key={code} value={code}>
