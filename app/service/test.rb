@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Eiwa
   module Tag
     class Entity < Any
@@ -20,13 +22,14 @@ module Eiwa
       end
 
       def end_element(name)
-        Rails.logger.info "#{name}"
-        raise Eiwa::Error.new("Parsing error. Expected <#{@current.tag_name}> to close before <#{name}>") if @current.tag_name != name
+        Rails.logger.info name.to_s
+        if @current.tag_name != name
+          raise Eiwa::Error, "Parsing error. Expected <#{@current.tag_name}> to close before <#{name}>"
+        end
+
         ending = @current
         ending.end_self
-        if ending.is_a?(Tag::Entry)
-          @each_entry_block&.call(ending)
-        end
+        @each_entry_block&.call(ending) if ending.is_a?(Tag::Entry)
 
         @current = ending.parent
         @current&.end_child(ending)
@@ -37,23 +40,23 @@ module Eiwa
         @current.add_characters(s)
       end
 
-      def comment string
+      def comment(string)
         Rails.logger.info "comment #{string}"
       end
 
-      def warning string
+      def warning(string)
         Rails.logger.info "warning #{string}"
       end
 
-      def get_entity name
+      def get_entity(name)
         p [__method__, name]
       end
 
-      def cdata_block string
+      def cdata_block(string)
         Rails.logger.info "cdata_block #{string}"
       end
 
-      def processing_instruction name, content
+      def processing_instruction(name, content)
         Rails.logger.info "processing_instruction #{name}, #{content}"
       end
 
@@ -69,7 +72,7 @@ module Eiwa
           debugger
           msg
         else
-          raise Eiwa::Error.new("Parsing error: #{msg}")
+          raise Eiwa::Error, "Parsing error: #{msg}"
         end
       end
     end

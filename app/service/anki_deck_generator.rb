@@ -28,7 +28,7 @@ class AnkiDeckGenerator
   end
 
   def headers
-    [:front, :back]
+    %i[front back]
   end
 
   def generate_cards

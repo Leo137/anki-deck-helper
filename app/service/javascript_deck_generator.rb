@@ -19,14 +19,14 @@ class JavascriptDeckGenerator
   def generate_deck
     # Write data to File containing array
 
-    File.open(file_path, "w") do |file|
-    	file.puts "const words = ["
+    File.open(file_path, 'w') do |file|
+      file.puts 'const words = ['
 
       cards.each do |card|
-        file.puts card.to_json + ','
+        file.puts "#{card.to_json},"
       end
 
-      file.puts "];"
+      file.puts '];'
     end
   end
 

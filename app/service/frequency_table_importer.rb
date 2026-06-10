@@ -47,7 +47,7 @@ class FrequencyTableImporter
 
     FrequencyTableEntry.import(
       frequency_table_entries.uniq(&:content),
-      on_duplicate_key_update: { conflict_target: [:content, :frequency_table_id], columns: [:frequency] },
+      on_duplicate_key_update: { conflict_target: %i[content frequency_table_id], columns: [:frequency] },
       recursive: true
     )
     @frequency_table_entries = []

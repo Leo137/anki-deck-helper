@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Word < ApplicationRecord
   validates :content, presence: true, uniqueness: true
 
@@ -30,11 +32,11 @@ class Word < ApplicationRecord
   end
 
   def tag!
-    if content[/^~/]
-      # Word is a counter
-      word_tags.build(tag: Tag.find_or_create_by(name: 'counter'))
-      content.gsub!('~', '')
-    end
+    return unless content[/^~/]
+
+    # Word is a counter
+    word_tags.build(tag: Tag.find_or_create_by(name: 'counter'))
+    content.gsub!('~', '')
   end
 
   def self.sorted_words_by_frequency_table(name)
@@ -48,7 +50,10 @@ class Word < ApplicationRecord
   end
 
   def dictionary_kana_readings
-    dictionary_entry&.readings&.select(&:is_kana?)&.map(&:text)&.uniq&.join(', ').presence
+    return unless dictionary_entry
+
+    texts = dictionary_entry.readings.select(&:is_kana?).map(&:text).uniq
+    texts.join(', ').presence
   end
 
   def dictionary_entries
@@ -75,24 +80,41 @@ class Word < ApplicationRecord
     return if words.empty?
 
     contents = words.map(&:content)
-    entries = Dictionary::Entry
-              .where(text: contents)
-              .or(Dictionary::Entry.where(id: Dictionary::Reading.where(text: contents).select(:dictionary_entry_id)))
-              .includes(meanings: %i[misc_tags fields part_of_speeches])
-              .distinct
-              .to_a
-
-    entries_by_text = entries.group_by(&:text)
-    entries_by_id = entries.index_by(&:id)
+    entries_by_text, entries_by_id = index_dictionary_entries(contents)
     reading_links = Dictionary::Reading.where(text: contents).pluck(:text, :dictionary_entry_id)
+    assign_preloaded_entries(words, entries_by_text, entries_by_id, reading_links)
+  end
 
+  def self.index_dictionary_entries(contents)
+    entries = load_dictionary_entries_for(contents)
+    [entries.group_by(&:text), entries.index_by(&:id)]
+  end
+
+  def self.assign_preloaded_entries(words, entries_by_text, entries_by_id, reading_links)
     words.each do |word|
-      matched = (entries_by_text[word.content] || []).dup
-      reading_links.each do |text, entry_id|
-        matched << entries_by_id[entry_id] if text == word.content && entries_by_id[entry_id]
-      end
-      word.instance_variable_set(:@preloaded_dictionary_entries, matched.uniq)
+      matched = matched_dictionary_entries(word, entries_by_text, entries_by_id, reading_links)
+      word.instance_variable_set(:@preloaded_dictionary_entries, matched)
     end
+  end
+
+  def self.load_dictionary_entries_for(contents)
+    Dictionary::Entry
+      .where(text: contents)
+      .or(Dictionary::Entry.where(id: Dictionary::Reading.where(text: contents).select(:dictionary_entry_id)))
+      .includes(meanings: %i[misc_tags fields part_of_speeches])
+      .distinct
+      .to_a
+  end
+
+  def self.matched_dictionary_entries(word, entries_by_text, entries_by_id, reading_links)
+    matched = (entries_by_text[word.content] || []).dup
+    reading_links.each do |text, entry_id|
+      next unless text == word.content
+
+      entry = entries_by_id[entry_id]
+      matched << entry if entry
+    end
+    matched.uniq
   end
 
   def dictionary_entries_for_tags

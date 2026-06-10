@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+
 json.query @query
 
 json.words @words do |word|
-  json.partial! 'api/v1/search/word', word: word
+  json.partial! 'api/v1/search/word', word:
 end
 
 json.word_sets @word_sets do |word_set|
-  json.partial! 'api/v1/search/word_set', word_set: word_set
+  json.partial! 'api/v1/search/word_set', word_set:
 end
 
 json.pagination do

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::WordSets', type: :request do
   describe 'GET /api/v1/word_sets' do
     it 'returns all word sets ordered by name with words_count' do
-      second = create(:word_set, name: 'zebra')
+      create(:word_set, name: 'zebra')
       first = create(:word_set, name: 'apple')
       word = create(:word)
       first.words << word

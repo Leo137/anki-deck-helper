@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FrequencyTable < ApplicationRecord
   has_many :word_frequencies
   has_many :frequency_table_entries

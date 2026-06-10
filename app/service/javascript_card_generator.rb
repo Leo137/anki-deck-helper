@@ -15,16 +15,16 @@ class JavascriptCardGenerator
     return nil unless kanji.present? && meaning.present?
 
     {
-    	kanji: kanji,
-    	kana: kana,
-    	meaning: meaning
+      kanji:,
+      kana:,
+      meaning:
     }
   end
 
   private
 
   def kanji
-  	content
+    content
   end
 
   def kana
@@ -42,8 +42,8 @@ class JavascriptCardGenerator
   end
 
   def entries
-    @entries ||= (
-        Dictionary::Entry.where(text: content).to_a
-      ).flatten.compact.uniq.sort_by(&:jmdict_id)
+    @entries ||=
+      Dictionary::Entry.where(text: content).to_a
+                       .flatten.compact.uniq.sort_by(&:jmdict_id)
   end
 end

@@ -49,7 +49,7 @@ RSpec.describe 'Api::V1::Search', type: :request do
       get '/api/v1/search', params: { q: '見る' }, as: :json
 
       body = JSON.parse(response.body)
-      expect(body['words'].map { |word| word['id'] }).to include(word.id)
+      expect(body['words'].map { |w| w['id'] }).to include(word.id)
     end
 
     it 'searches word sets by name' do
@@ -60,12 +60,12 @@ RSpec.describe 'Api::V1::Search', type: :request do
 
       body = JSON.parse(response.body)
       expect(body['word_sets']).to eq([
-                                       {
-                                         'id' => match.id,
-                                         'name' => 'core vocabulary',
-                                         'words_count' => 0
-                                       }
-                                     ])
+                                        {
+                                          'id' => match.id,
+                                          'name' => 'core vocabulary',
+                                          'words_count' => 0
+                                        }
+                                      ])
     end
 
     it 'paginates words and word sets independently' do

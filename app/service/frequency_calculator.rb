@@ -12,14 +12,10 @@ class FrequencyCalculator
 
   def call
     words.find_each do |word|
-      next unless word.content
-      next unless (frequency = find_word_frequency(word.content))
+      record = word_frequency_for(word)
+      next unless record
 
-      word_frequencies << WordFrequency.new(
-        frequency: frequency.frequency,
-        word:,
-        frequency_table:
-      )
+      word_frequencies << record
       import_word_frequencies if word_frequencies.length > 1_000
     end
     import_word_frequencies
@@ -32,10 +28,19 @@ class FrequencyCalculator
 
     WordFrequency.import(
       word_frequencies.uniq,
-      on_duplicate_key_update: { conflict_target: [:word_id, :frequency_table_id], columns: [:frequency] },
+      on_duplicate_key_update: { conflict_target: %i[word_id frequency_table_id], columns: [:frequency] },
       recursive: true
     )
     @word_frequencies = []
+  end
+
+  def word_frequency_for(word)
+    return unless word.content
+
+    frequency = find_word_frequency(word.content)
+    return unless frequency
+
+    WordFrequency.new(frequency: frequency.frequency, word:, frequency_table:)
   end
 
   def find_word_frequency(content)
