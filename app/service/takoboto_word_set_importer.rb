@@ -6,26 +6,27 @@ require 'csv'
 # Each distinct List value becomes its own WordSet (origin: takoboto).
 # Only the first reading from the Word column is stored; translations are ignored.
 class TakobotoWordSetImporter
-  attr_accessor :file, :word_sets
+  attr_accessor :filepath, :word_sets
 
   def initialize(filepath)
-    @file = File.new(filepath, 'r')
+    @filepath = filepath
     @word_sets = {}
   end
 
   def call
-    CSV.foreach(file, headers: true) do |row|
+    CSV.foreach(filepath, headers: true, encoding: 'bom|utf-8') do |row|
       import_row(row)
     end
-  ensure
-    file.close
   end
 
   private
 
   def import_row(row)
-    word_set = word_set_for(row['List'])
-    content = extract_first_reading(row['Word'])
+    list_name = column_value(row, 'List')
+    return if list_name.blank?
+
+    word_set = word_set_for(list_name)
+    content = extract_first_reading(column_value(row, 'Word'))
     return if content.blank?
 
     word = Word.find_or_create_by(content:)
@@ -36,8 +37,19 @@ class TakobotoWordSetImporter
   end
 
   def word_set_for(list_name)
-    name = list_name.to_s.strip
+    name = list_name.strip
     word_sets[name] ||= WordSet.find_or_create_by!(name:, origin: :takoboto)
+  end
+
+  def column_value(row, column)
+    header = row.headers.find { |h| normalize_header(h) == column }
+    return unless header
+
+    row[header]&.strip
+  end
+
+  def normalize_header(header)
+    header.to_s.delete_prefix("\uFEFF").strip
   end
 
   def extract_first_reading(word_field)

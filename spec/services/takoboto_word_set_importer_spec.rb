@@ -38,6 +38,17 @@ RSpec.describe TakobotoWordSetImporter do
       expect(takoboto_set.words.pluck(:content)).to contain_exactly('こしつ', 'ちんたいじゅうたく')
     end
 
+    it 'reads list names from CSV files with a UTF-8 BOM' do
+      described_class.new(Rails.root.join('spec/fixtures/files/takoboto_sample_bom.csv')).call
+
+      favorites = WordSet.find_by!(name: 'Favorites', origin: :takoboto)
+      history = WordSet.find_by!(name: 'History', origin: :takoboto)
+
+      expect(favorites.words.pluck(:content)).to eq(['こしつ'])
+      expect(history.words.pluck(:content)).to eq(['きたいかん'])
+      expect(WordSet.where(name: '', origin: :takoboto)).to be_empty
+    end
+
     it 'reuses the takoboto word set on subsequent imports' do
       described_class.new(csv_path).call
       first_set = WordSet.find_by!(name: 'History', origin: :takoboto)
