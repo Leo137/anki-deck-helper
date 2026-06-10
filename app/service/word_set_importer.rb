@@ -6,7 +6,7 @@ class WordSetImporter
   attr_accessor :word_set, :file, :words
 
   def initialize(word_set_name, filepath)
-    @word_set = WordSet.find_or_create_by(name: word_set_name)
+    @word_set = WordSet.find_or_create_by!(name: word_set_name, origin: :normal)
     @words = []
     @file = File.new(filepath, 'r')
   end
