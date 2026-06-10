@@ -5,6 +5,7 @@ const LANGUAGE_LABELS: Record<string, string> = {
   es: 'Spanish',
   pt: 'Portuguese',
   ru: 'Russian',
+  ja: 'Japanese',
 }
 
 export function languageLabel(code: string): string {
