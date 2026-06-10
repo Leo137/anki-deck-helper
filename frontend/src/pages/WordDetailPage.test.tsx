@@ -2,9 +2,16 @@ import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Route, Routes, type MemoryRouterProps } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import * as authApi from '../api/auth'
+import { setAuthToken } from '../api/client'
 import * as wordsApi from '../api/words'
 import { renderWithProviders } from '../test/test-utils'
 import WordDetailPage from './WordDetailPage'
+
+function mockGuestUser() {
+  setAuthToken(null)
+  vi.spyOn(authApi, 'fetchCurrentUser').mockRejectedValue(new Error('Unauthorized'))
+}
 
 function renderWordDetailPage(route = '/words/5', routerProps?: Omit<MemoryRouterProps, 'children'>) {
   renderWithProviders(
@@ -37,9 +44,11 @@ const baseWord = {
 describe('WordDetailPage', () => {
   afterEach(() => {
     vi.restoreAllMocks()
+    setAuthToken(null)
   })
 
   it('shows word details and dictionary entries', async () => {
+    mockGuestUser()
     vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue(baseWord)
 
     renderWordDetailPage()
@@ -56,7 +65,25 @@ describe('WordDetailPage', () => {
     expect(wordsApi.fetchWord).toHaveBeenCalledWith(5, 'en')
   })
 
+  it('uses the signed-in user preferred language as the default', async () => {
+    setAuthToken('Bearer test-token')
+    vi.spyOn(authApi, 'fetchCurrentUser').mockResolvedValue({
+      id: 1,
+      email: 'reader@example.com',
+      username: 'reader',
+      preferred_language: 'ja',
+    })
+    vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue(baseWord)
+
+    renderWordDetailPage()
+
+    await waitFor(() => {
+      expect(wordsApi.fetchWord).toHaveBeenCalledWith(5, 'ja')
+    })
+  })
+
   it('shows a language picker and refetches definitions when the language changes', async () => {
+    mockGuestUser()
     const user = userEvent.setup()
     const fetchWord = vi
       .spyOn(wordsApi, 'fetchWord')
@@ -91,6 +118,7 @@ describe('WordDetailPage', () => {
   })
 
   it('hides the language picker when only one language is available', async () => {
+    mockGuestUser()
     vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue(baseWord)
 
     renderWordDetailPage()
@@ -103,6 +131,7 @@ describe('WordDetailPage', () => {
   })
 
   it('links back to the originating word set when navigation state is present', async () => {
+    mockGuestUser()
     vi.spyOn(wordsApi, 'fetchWord').mockResolvedValue({
       id: 5,
       content: '食べる',
@@ -131,6 +160,7 @@ describe('WordDetailPage', () => {
   })
 
   it('shows an error when the word cannot be loaded', async () => {
+    mockGuestUser()
     vi.spyOn(wordsApi, 'fetchWord').mockRejectedValue(new Error('Not found'))
 
     renderWordDetailPage()

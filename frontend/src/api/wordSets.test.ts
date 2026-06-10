@@ -18,7 +18,7 @@ describe('wordSets API', () => {
     )
 
     await expect(fetchWordSets()).resolves.toEqual(wordSets)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/word_sets')
+    expect(fetch).toHaveBeenCalledWith('/api/v1/word_sets', expect.objectContaining({ method: 'GET' }))
   })
 
   it('fetchWordSet requests a single word set', async () => {
@@ -33,7 +33,10 @@ describe('wordSets API', () => {
     )
 
     await expect(fetchWordSet(2)).resolves.toEqual(wordSet)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/word_sets/2')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/word_sets/2',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 
   it('fetchWordSetWords includes pagination query params', async () => {
@@ -51,6 +54,9 @@ describe('wordSets API', () => {
     )
 
     await expect(fetchWordSetWords(3, 2, 25)).resolves.toEqual(payload)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/word_sets/3/words?page=2&per_page=25')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/word_sets/3/words?page=2&per_page=25',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 })

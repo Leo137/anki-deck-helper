@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { themeClasses } from '../styles/theme'
+import AuthNav from './AuthNav'
 import SearchBar from './SearchBar'
 import ThemeToggle from './ThemeToggle'
 
@@ -16,6 +17,7 @@ export default function Layout({ children }: LayoutProps) {
             Word Tracker
           </Link>
           <SearchBar />
+          <AuthNav />
           <ThemeToggle />
         </div>
       </header>

@@ -25,6 +25,8 @@ export const themeClasses = {
 
   input:
     'w-full rounded-lg border border-border-input bg-elevated px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20',
+  select:
+    'wt-select w-full rounded-lg border border-border-input bg-elevated py-2 pl-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20',
   iconButton:
     'shrink-0 rounded-lg border border-border-input bg-elevated p-2 text-secondary transition hover:bg-hover',
   dropdownPanel:

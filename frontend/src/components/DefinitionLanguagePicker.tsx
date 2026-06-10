@@ -30,7 +30,7 @@ export default function DefinitionLanguagePicker({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={`${themeClasses.input} w-auto min-w-36 py-1.5`}
+        className={`${themeClasses.select} w-auto min-w-36 py-1.5`}
       >
         {languages.map((language) => (
           <option key={language} value={language}>

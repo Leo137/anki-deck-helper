@@ -29,7 +29,10 @@ describe('fetchWord', () => {
     )
 
     await expect(fetchWord(42)).resolves.toEqual(word)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42?language=en')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/words/42?language=en',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 
   it('requests a specific language when provided', async () => {
@@ -43,6 +46,9 @@ describe('fetchWord', () => {
 
     await fetchWord(42, 'fr')
 
-    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42?language=fr')
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/words/42?language=fr',
+      expect.objectContaining({ method: 'GET' }),
+    )
   })
 })
