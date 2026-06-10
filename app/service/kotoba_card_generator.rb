@@ -52,11 +52,17 @@ class KotobaCardGenerator
   end
 
   def entries
-    @entries ||= (
-        Dictionary::Entry.where(text: content) +
-        Dictionary::Reading.where(text: content).map(&:dictionary_entry)
-      ).flatten.compact.uniq
-       .select { |entry| entry.meanings.any? { |m| m.dictionary_id == dictionary.id } }
-       .sort_by(&:jmdict_id)
+    @entries ||= matched_entries.select { |entry| entry_in_dictionary?(entry) }
+  end
+
+  def matched_entries
+    (
+      Dictionary::Entry.where(text: content) +
+      Dictionary::Reading.where(text: content).map(&:dictionary_entry)
+    ).flatten.compact.uniq.sort_by(&:jmdict_id)
+  end
+
+  def entry_in_dictionary?(entry)
+    entry.meanings.any? { |meaning| meaning.dictionary_id == dictionary.id }
   end
 end
