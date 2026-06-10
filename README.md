@@ -25,6 +25,14 @@ The app runs via Docker Compose. In development, the React frontend is available
 
 This project is developed with [Cursor](https://cursor.com/). AI-assisted conventions and commands live in `.cursor/rules/` and `AGENTS.md`.
 
+### Word definitions by language
+
+On the word detail page, dictionary definitions are shown for a selected language. English (`en`) is the default.
+
+- Import glossaries per language (for example JMDict English via `DictionaryImporter`, or Wiktionary Japanese via `WiktionaryDictionaryImporter`).
+- `GET /api/v1/words/:id?language=en` returns `dictionary_entries` for the requested language and `available_languages` listing every language that has definitions for that word.
+- The frontend shows a language picker when more than one language is available; changing the selection refetches definitions for that language.
+
 # Prerequisites
 
 * Docker

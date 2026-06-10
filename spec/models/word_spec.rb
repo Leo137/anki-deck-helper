@@ -182,6 +182,34 @@ RSpec.describe Word, type: :model do
     end
   end
 
+  describe '#definition_languages' do
+    it 'returns an empty array when the word has no dictionary entries' do
+      word = create(:word, content: 'unknown')
+
+      expect(word.definition_languages).to eq([])
+    end
+
+    it 'returns language codes that have meanings for the word' do
+      french = create(:language, code: 'fr')
+      french_dictionary = create(:dictionary, name: 'french', language: french)
+      word = create(:word, content: '食べる')
+      entry = create(:dictionary_entry, text: word.content)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: french_dictionary)
+
+      expect(word.definition_languages).to eq(%w[en fr])
+    end
+
+    it 'returns each language only once when multiple meanings share a dictionary' do
+      word = create(:word, content: '食べる')
+      entry = create(:dictionary_entry, text: word.content)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+
+      expect(word.definition_languages).to eq(['en'])
+    end
+  end
+
   describe '#to_anki_card' do
     it 'delegates to AnkiCardGenerator' do
       word = build(:word, content: 'test')
