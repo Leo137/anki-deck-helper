@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Words', type: :request do
+  let!(:english_dictionary) { create(:dictionary, :english_jmdict) }
+
   describe 'GET /api/v1/words' do
     it 'returns all words ordered by content' do
       create(:word, content: 'zebra')
@@ -65,7 +67,7 @@ RSpec.describe 'Api::V1::Words', type: :request do
       word_set = create(:word_set, name: 'core')
       word.word_sets << word_set
       entry = create(:dictionary_entry, text: word.content, jmdict_id: '100')
-      meaning = create(:dictionary_meaning, dictionary_entry: entry)
+      meaning = create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
       create(:dictionary_meaning_definition, dictionary_meaning: meaning, text: 'to eat')
       create(:dictionary_reading, :kana, dictionary_entry: entry, text: 'たべる')
 
@@ -80,6 +82,21 @@ RSpec.describe 'Api::V1::Words', type: :request do
         'readings' => ['たべる'],
         'senses' => [{ 'tags' => [], 'definitions' => ['to eat'] }]
       )
+    end
+
+    it 'defaults to English dictionary entries' do
+      word = create(:word, content: '食べる')
+      entry = create(:dictionary_entry, text: word.content)
+      french = create(:language, code: 'fr')
+      french_dictionary = create(:dictionary, name: 'french', language: french)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
+      french_meaning = create(:dictionary_meaning, dictionary_entry: entry, dictionary: french_dictionary)
+      create(:dictionary_meaning_definition, dictionary_meaning: french_meaning, text: 'manger')
+
+      get "/api/v1/words/#{word.id}", as: :json
+
+      definitions = JSON.parse(response.body)['dictionary_entries'].first['senses'].flat_map { |s| s['definitions'] }
+      expect(definitions).not_to include('manger')
     end
 
     it 'returns not found for a missing word' do

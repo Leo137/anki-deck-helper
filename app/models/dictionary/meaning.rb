@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
-module Dictionary
+class Dictionary
   class Meaning < ApplicationRecord
+    self.table_name = 'dictionary_meanings'
+
     belongs_to :dictionary_entry, class_name: 'Dictionary::Entry', foreign_key: 'dictionary_entry_id'
+    belongs_to :dictionary
 
     has_many :definitions, foreign_key: 'dictionary_meaning_id', dependent: :destroy
     has_many :fields, foreign_key: 'dictionary_meaning_id', dependent: :destroy

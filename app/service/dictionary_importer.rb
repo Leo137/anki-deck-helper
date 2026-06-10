@@ -1,22 +1,29 @@
 # frozen_string_literal: true
 
-# Loads the JMDict XML file into dictionary entry records.
+# Loads the JMDict JSON file into dictionary entry records.
 class DictionaryImporter
-  attr_accessor :entries, :file
+  attr_accessor :entries, :file, :dictionary
 
   def initialize
     @entries = []
-    @file = File.new('dictionaries/jmdict-eng-3.5.0.json', 'r')
   end
 
-  def call
-    # Skip the 6 first records, those are metadata.
+  def call(language:, file:)
+    raise ArgumentError, 'language is required' if language.blank?
+    raise ArgumentError, 'file is required' if file.blank?
+
+    @file = File.new(file, 'r')
+    @dictionary = Dictionary.find_or_create_for!(name: dictionary_name(file), language:)
     process_dict_entries(json_data['words'])
   ensure
-    file.close
+    file&.close
   end
 
   private
+
+  def dictionary_name(path)
+    File.basename(path, '.json')
+  end
 
   def process_dict_entries(dict_entries)
     dict_entries.each do |dict_entry|
@@ -40,7 +47,7 @@ class DictionaryImporter
 
   def build_dictionary_entry(dict_entry)
     formatted = DictionaryEntryFormatter.new(dict_entry).call
-    DictionaryEntryBuilder.new(formatted).call
+    DictionaryEntryBuilder.new(formatted, dictionary:).call
   end
 
   def json_data

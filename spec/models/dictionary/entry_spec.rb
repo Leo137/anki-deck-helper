@@ -18,7 +18,7 @@ RSpec.describe Dictionary::Entry, type: :model do
     it 'renders kana readings and meanings as HTML' do
       entry = create(:dictionary_entry, text: '食べる')
       create(:dictionary_reading, :kana, dictionary_entry: entry, text: 'たべる')
-      meaning = create(:dictionary_meaning, dictionary_entry: entry)
+      meaning = create(:dictionary_meaning, dictionary_entry: entry, dictionary: create(:dictionary, :english_jmdict))
       create(:dictionary_meaning_definition, dictionary_meaning: meaning, text: 'to eat')
 
       html = entry.to_s

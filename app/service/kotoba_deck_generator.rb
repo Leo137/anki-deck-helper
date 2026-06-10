@@ -6,11 +6,12 @@ require 'csv'
 
 # Creates a kotoba deck (CSV format) based on a list of words
 class KotobaDeckGenerator
-  attr_accessor :words, :deck_name
+  attr_accessor :words, :deck_name, :dictionary
 
-  def initialize(words, deck_name)
+  def initialize(words, deck_name, dictionary:)
     @words = words
     @deck_name = deck_name
+    @dictionary = dictionary
   end
 
   def call
@@ -37,6 +38,6 @@ class KotobaDeckGenerator
   end
 
   def generate_cards
-    words.map(&:to_kotoba_card).compact
+    words.map { |word| word.to_kotoba_card(dictionary:) }.compact
   end
 end

@@ -3,10 +3,11 @@
 # Builds an Eiwa entry into a Dictionary::Entry record.
 # Doesnt persist it
 class DictionaryEntryBuilder
-  attr_accessor :dict_entry, :entry
+  attr_accessor :dict_entry, :entry, :dictionary
 
-  def initialize(dict_entry)
+  def initialize(dict_entry, dictionary:)
     @dict_entry = dict_entry
+    @dictionary = dictionary
   end
 
   def call
@@ -45,7 +46,7 @@ class DictionaryEntryBuilder
   end
 
   def build_dictionary_meaning(dict_meaning)
-    entry.meanings.build do |meaning|
+    entry.meanings.build(dictionary:) do |meaning|
       build_meaning_definitions(meaning, dict_meaning)
       build_meaning_misc_tags(meaning, dict_meaning)
       build_meaning_fields(meaning, dict_meaning)

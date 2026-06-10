@@ -10,5 +10,7 @@ class DictionaryPoofer
     Dictionary::Meaning.delete_all
     Dictionary::Reading.delete_all
     Dictionary::Entry.delete_all
+    Dictionary.delete_all
+    Language.delete_all
   end
 end

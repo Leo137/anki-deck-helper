@@ -3,11 +3,12 @@
 # Creates javascript deck based on a list of words
 # Creates a Javascript deck (JS format code) based on a list of words
 class JavascriptDeckGenerator
-  attr_accessor :words, :deck_name
+  attr_accessor :words, :deck_name, :dictionary
 
-  def initialize(words, deck_name)
+  def initialize(words, deck_name, dictionary:)
     @words = words
     @deck_name = deck_name
+    @dictionary = dictionary
   end
 
   def call
@@ -39,6 +40,6 @@ class JavascriptDeckGenerator
   end
 
   def generate_cards
-    words.map(&:to_javascript_card).compact
+    words.map { |word| word.to_javascript_card(dictionary:) }.compact
   end
 end

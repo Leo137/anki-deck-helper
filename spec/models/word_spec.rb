@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Word, type: :model do
+  let!(:english_dictionary) { create(:dictionary, :english_jmdict) }
+
   describe 'validations' do
     subject { build(:word) }
 
@@ -11,12 +13,9 @@ RSpec.describe Word, type: :model do
   end
 
   describe 'associations' do
-    it { is_expected.to have_and_belong_to_many(:word_sets) }
-    it { is_expected.to have_many(:word_frequencies).dependent(:destroy) }
-    it { is_expected.to have_many(:word_tags).dependent(:destroy) }
-    it { is_expected.to have_many(:frequency_tables).through(:word_frequencies) }
-    it { is_expected.to have_many(:tags).through(:word_tags) }
-    it { is_expected.to have_one(:dictionary_entry).class_name('Dictionary::Entry').with_foreign_key('text') }
+    it {
+      expect(subject).to have_many(:dictionary_entries).class_name('Dictionary::Entry').with_foreign_key('text')
+    }
   end
 
   describe '.by_frequency_table' do
@@ -112,6 +111,7 @@ RSpec.describe Word, type: :model do
       entry = create(:dictionary_entry, text: word.content)
       create(:dictionary_reading, :kana, dictionary_entry: entry, text: 'たべる')
       create(:dictionary_reading, dictionary_entry: entry, text: '食べる', is_kana: false)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
 
       expect(word.reading).to eq('たべる')
     end
@@ -130,6 +130,7 @@ RSpec.describe Word, type: :model do
       create(:dictionary_reading, :kana, dictionary_entry: entry, text: 'みる')
       create(:dictionary_reading, :kana, dictionary_entry: entry, text: 'みる')
       create(:dictionary_reading, dictionary_entry: entry, text: '見る', is_kana: false)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
 
       expect(word.dictionary_kana_readings).to eq('みる')
     end
@@ -141,6 +142,8 @@ RSpec.describe Word, type: :model do
       by_text = create(:dictionary_entry, text: '見る', jmdict_id: '100')
       by_reading = create(:dictionary_entry, text: '見る別', jmdict_id: '200')
       create(:dictionary_reading, dictionary_entry: by_reading, text: '見る', is_kana: false)
+      create(:dictionary_meaning, dictionary_entry: by_text, dictionary: english_dictionary)
+      create(:dictionary_meaning, dictionary_entry: by_reading, dictionary: english_dictionary)
 
       expect(word.dictionary_entries).to contain_exactly(by_text, by_reading)
     end
@@ -149,6 +152,7 @@ RSpec.describe Word, type: :model do
       word = create(:word, content: '見る')
       entry = create(:dictionary_entry, text: '見る')
       create(:dictionary_reading, dictionary_entry: entry, text: '見る', is_kana: false)
+      create(:dictionary_meaning, dictionary_entry: entry, dictionary: english_dictionary)
 
       expect(word.dictionary_entries).to contain_exactly(entry)
     end
@@ -158,8 +162,23 @@ RSpec.describe Word, type: :model do
       second = create(:dictionary_entry, text: '見る', jmdict_id: '200')
       first = create(:dictionary_entry, text: '見る別', jmdict_id: '100')
       create(:dictionary_reading, dictionary_entry: first, text: '見る', is_kana: false)
+      create(:dictionary_meaning, dictionary_entry: first, dictionary: english_dictionary)
+      create(:dictionary_meaning, dictionary_entry: second, dictionary: english_dictionary)
 
       expect(word.dictionary_entries.to_a).to eq([first, second])
+    end
+
+    it 'excludes entries without meanings for the requested language' do
+      french = create(:language, code: 'fr')
+      french_dictionary = create(:dictionary, name: 'french', language: french)
+      word = create(:word, content: '見る')
+      english_entry = create(:dictionary_entry, text: '見る')
+      french_entry = create(:dictionary_entry, text: '見る')
+      create(:dictionary_meaning, dictionary_entry: english_entry, dictionary: english_dictionary)
+      create(:dictionary_meaning, dictionary_entry: french_entry, dictionary: french_dictionary)
+
+      expect(word.dictionary_entries(language: :en)).to contain_exactly(english_entry)
+      expect(word.dictionary_entries(language: :fr)).to contain_exactly(french_entry)
     end
   end
 
@@ -167,9 +186,9 @@ RSpec.describe Word, type: :model do
     it 'delegates to AnkiCardGenerator' do
       word = build(:word, content: 'test')
       generator = instance_double(AnkiCardGenerator, call: { front: 'front', back: 'back' })
-      allow(AnkiCardGenerator).to receive(:new).with(word).and_return(generator)
+      allow(AnkiCardGenerator).to receive(:new).with(word, dictionary: english_dictionary).and_return(generator)
 
-      expect(word.to_anki_card).to eq({ front: 'front', back: 'back' })
+      expect(word.to_anki_card(dictionary: english_dictionary)).to eq({ front: 'front', back: 'back' })
     end
   end
 
@@ -177,9 +196,9 @@ RSpec.describe Word, type: :model do
     it 'delegates to KotobaCardGenerator' do
       word = build(:word)
       generator = instance_double(KotobaCardGenerator, call: { card: 'kotoba' })
-      allow(KotobaCardGenerator).to receive(:new).with(word).and_return(generator)
+      allow(KotobaCardGenerator).to receive(:new).with(word, dictionary: english_dictionary).and_return(generator)
 
-      expect(word.to_kotoba_card).to eq({ card: 'kotoba' })
+      expect(word.to_kotoba_card(dictionary: english_dictionary)).to eq({ card: 'kotoba' })
     end
   end
 
@@ -187,9 +206,9 @@ RSpec.describe Word, type: :model do
     it 'delegates to JavascriptCardGenerator' do
       word = build(:word)
       generator = instance_double(JavascriptCardGenerator, call: { card: 'js' })
-      allow(JavascriptCardGenerator).to receive(:new).with(word).and_return(generator)
+      allow(JavascriptCardGenerator).to receive(:new).with(word, dictionary: english_dictionary).and_return(generator)
 
-      expect(word.to_javascript_card).to eq({ card: 'js' })
+      expect(word.to_javascript_card(dictionary: english_dictionary)).to eq({ card: 'js' })
     end
   end
 end

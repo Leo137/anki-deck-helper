@@ -52,7 +52,10 @@ bundle exec rails c
 
 ```
 # Load the dictionary
-DictionaryImporter.new.call
+DictionaryImporter.new.call(language: :en, file: 'dictionaries/jmdict-eng-3.5.0.json')
+
+# Assign existing meanings to the English dictionary (after upgrading)
+bundle exec rails dictionary:assign_english_dictionary
 
 # Load the frequency tables
 FrequencyTableImporter.new('bccwj', 'frequency-tables/bccwj.json').call
@@ -77,7 +80,8 @@ words = words_with_frequency.map(&:word)
 
 # Create an anki deck from a list of words named "my_deck"
 # Deck will be created into the "decks" subfolder
-AnkiDeckGenerator.new(words, 'my_deck').call
+english_dictionary = Dictionary.find_by!(name: 'jmdict-eng-3.5.0', language: Language.find_by!(code: 'en'))
+AnkiDeckGenerator.new(words, 'my_deck', dictionary: english_dictionary).call
 
 ```
 
@@ -97,6 +101,8 @@ Dictionary::Meaning::PartOfSpeech.delete_all
 Dictionary::Meaning.delete_all
 Dictionary::Reading.delete_all
 Dictionary::Entry.delete_all
+Dictionary.delete_all
+Language.delete_all
 ```
 
 Styling used for the cards
@@ -143,7 +149,7 @@ Export a CSV to be used for Kotoba's Discord bot (https://kotobaweb.com/bot)
 ```
 # Create an Kotoba CSV deck from a list of words named "kotoba_my_deck"
 # Deck will be created into the "decks" subfolder
-KotobaDeckGenerator.new(words, 'my_deck').call
+KotobaDeckGenerator.new(words, 'my_deck', dictionary: english_dictionary).call
 ```
 
 ## Export to Javascript Array format
@@ -153,5 +159,5 @@ Export a File to be used for the simple SRS application (https://leo-flashcards.
 ```
 # Create an Kotoba CSV deck from a list of words named "javascript_my_deck"
 # Deck will be created into the "decks" subfolder
-JavascriptDeckGenerator.new(words, 'my_deck').call
+JavascriptDeckGenerator.new(words, 'my_deck', dictionary: english_dictionary).call
 ```

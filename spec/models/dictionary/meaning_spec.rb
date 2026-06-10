@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Dictionary::Meaning, type: :model do
   describe 'associations' do
     it { is_expected.to belong_to(:dictionary_entry).class_name('Dictionary::Entry') }
+    it { is_expected.to belong_to(:dictionary) }
     it { is_expected.to have_many(:definitions).dependent(:destroy) }
     it { is_expected.to have_many(:fields).dependent(:destroy) }
     it { is_expected.to have_many(:misc_tags).dependent(:destroy) }
