@@ -6,6 +6,8 @@ json.word_sets @word.word_sets do |word_set|
   json.extract! word_set, :id, :name
 end
 
+json.available_languages @word.definition_languages
+
 json.dictionary_entries @dictionary_entries do |entry|
   json.partial! 'api/v1/dictionary_entries/entry', entry:, dictionary_ids: @dictionary_ids
 end
