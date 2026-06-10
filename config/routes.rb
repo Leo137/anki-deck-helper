@@ -1,6 +1,10 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Defines the root path route ("/")
-  # root "articles#index"
+  namespace :api do
+    namespace :v1 do
+      resources :word_sets, only: %i[index show] do
+        resources :words, only: [:index], module: :word_sets
+      end
+      resources :words, only: %i[index show]
+    end
+  end
 end

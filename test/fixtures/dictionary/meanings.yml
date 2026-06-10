@@ -2,8 +2,6 @@
 
 one:
   dictionary_entry: one
-  misc_tags: MyString
 
 two:
   dictionary_entry: two
-  misc_tags: MyString

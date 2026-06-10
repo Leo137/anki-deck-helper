@@ -27,6 +27,9 @@ gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
+# Handle Cross-Origin Resource Sharing (CORS) for the React frontend
+gem "rack-cors"
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 

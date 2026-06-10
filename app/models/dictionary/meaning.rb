@@ -6,11 +6,17 @@ class Dictionary::Meaning < ApplicationRecord
   has_many :misc_tags, foreign_key: 'dictionary_meaning_id', dependent: :destroy
   has_many :part_of_speeches, foreign_key: 'dictionary_meaning_id', dependent: :destroy
 
-  def to_s
-    cloud_tag = misc_tags.map(&:code) + fields.map(&:code) + part_of_speeches.map(&:code)
+  def cloud_tag
+    misc_tags.map(&:code) + fields.map(&:code) + part_of_speeches.map(&:code)
+  end
 
+  def cloud_tag_label
+    cloud_tag.join('-').presence
+  end
+
+  def to_s
     result = ''
-    result += "<div class='tags'>#{cloud_tag.join('-')}</div><br>" if cloud_tag.any?
+    result += "<div class='tags'>#{cloud_tag_label}</div><br>" if cloud_tag_label
     result += definitions.map { |d| "<div class='definition'>* #{d.text}</div>" }.join("\n")
     result += "\n"
     result
