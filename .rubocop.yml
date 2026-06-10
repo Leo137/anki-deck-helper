@@ -1,0 +1,12 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  Exclude:
+    - bin/**/*
+    - db/schema.rb
+    - db/migrate/**/*
+    - frontend/**/*
+    - node_modules/**/*
+    - test/**/*
+    - tmp/**/*
+    - vendor/**/*
