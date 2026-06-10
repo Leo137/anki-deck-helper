@@ -6,7 +6,7 @@ describe('fetchWord', () => {
     vi.restoreAllMocks()
   })
 
-  it('fetches a word by id', async () => {
+  it('fetches a word by id with English definitions by default', async () => {
     const word = {
       id: 42,
       content: '食べる',
@@ -28,6 +28,20 @@ describe('fetchWord', () => {
     )
 
     await expect(fetchWord(42)).resolves.toEqual(word)
-    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42')
+    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42?language=en')
+  })
+
+  it('requests a specific language when provided', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({}),
+      }),
+    )
+
+    await fetchWord(42, 'fr')
+
+    expect(fetch).toHaveBeenCalledWith('/api/v1/words/42?language=fr')
   })
 })

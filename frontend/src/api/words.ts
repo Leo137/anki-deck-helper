@@ -6,8 +6,9 @@ type WordDetail = Word & {
   dictionary_entries: DictionaryEntry[]
 }
 
-export function fetchWord(id: number): Promise<WordDetail> {
-  return request(`/api/v1/words/${id}`)
+export function fetchWord(id: number, language = 'en'): Promise<WordDetail> {
+  const params = new URLSearchParams({ language })
+  return request(`/api/v1/words/${id}?${params}`)
 }
 
 export type { WordDetail }
