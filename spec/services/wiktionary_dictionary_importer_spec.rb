@@ -4,6 +4,9 @@ require 'rails_helper'
 
 RSpec.describe WiktionaryDictionaryImporter do
   let(:fixture_path) { Rails.root.join('spec/fixtures/files/wiktionary_densha.jsonl') }
+  let(:first_gloss) do
+    '外部からの電気を動力として走る列車のうち、1編成中の車両のいくつか又はすべてに動力となる電動機を装備して自走能力をそなえ、機関車の牽引によらずに走行する列車。'
+  end
 
   describe '#call' do
     it 'imports Japanese entries from a JSONL file' do
@@ -23,9 +26,7 @@ RSpec.describe WiktionaryDictionaryImporter do
       entry = Dictionary::Entry.find_by!(text: '電車')
       first_meaning = entry.meanings.where(dictionary:).order(:id).first
 
-      expect(first_meaning.definitions.pluck(:text)).to eq([
-        '外部からの電気を動力として走る列車のうち、1編成中の車両のいくつか又はすべてに動力となる電動機を装備して自走能力をそなえ、機関車の牽引によらずに走行する列車。'
-      ])
+      expect(first_meaning.definitions.pluck(:text)).to eq([first_gloss])
       expect(first_meaning.part_of_speeches.pluck(:code)).to eq(['noun'])
       expect(first_meaning.misc_tags.pluck(:code)).to include('和製漢語', '日本語 鉄道', '車両')
       expect(first_meaning.fields.pluck(:code)).to eq(['rail-transport'])
