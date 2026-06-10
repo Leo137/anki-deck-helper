@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { search } from '../api/search'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { themeClasses } from '../styles/theme'
 import type { SearchResults } from '../types/search'
 
 export default function SearchBar() {
@@ -101,15 +102,11 @@ export default function SearchBar() {
             setOpen(true)
           }
         }}
-        className="w-full rounded-lg border border-gray-300 bg-elevated px-3 py-2 text-sm text-gray-900 placeholder:text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 dark:border-gray-600 dark:text-gray-100"
+        className={themeClasses.input}
       />
 
       {showDropdown && (
-        <div
-          id={listboxId}
-          role="listbox"
-          className="absolute top-full z-50 mt-1 max-h-80 w-full overflow-y-auto rounded-lg border border-gray-200 bg-elevated py-2 shadow-lg dark:border-gray-700"
-        >
+        <div id={listboxId} role="listbox" className={themeClasses.dropdownPanel}>
           {loading && <p className="px-4 py-2 text-sm text-muted">Searching…</p>}
 
           {!loading && results && results.word_sets.length > 0 && (
@@ -124,9 +121,9 @@ export default function SearchBar() {
                       type="button"
                       role="option"
                       onClick={() => handleSelectWordSet(wordSet.id)}
-                      className="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className={themeClasses.dropdownItem}
                     >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{wordSet.name}</span>
+                      <span className={`font-medium ${themeClasses.heading}`}>{wordSet.name}</span>
                       <span className="text-xs text-muted">
                         {wordSet.words_count.toLocaleString()} words
                       </span>
@@ -149,9 +146,9 @@ export default function SearchBar() {
                       type="button"
                       role="option"
                       onClick={() => handleSelectWord(word.id)}
-                      className="flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className={themeClasses.dropdownItemWithGap}
                     >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">{word.content}</span>
+                      <span className={`font-medium ${themeClasses.heading}`}>{word.content}</span>
                       <span className="truncate text-xs text-muted">{word.reading ?? '—'}</span>
                     </button>
                   </li>
