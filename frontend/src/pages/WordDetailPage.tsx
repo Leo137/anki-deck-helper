@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { fetchWord, type WordDetail } from '../api/words'
 import DictionaryEntryCard from '../components/DictionaryEntryCard'
+import { themeClasses } from '../styles/theme'
 import type { WordDetailLocationState } from '../types/word'
 
 function backLink(state: WordDetailLocationState | null) {
@@ -42,19 +43,17 @@ export default function WordDetailPage() {
   if (error || !word) {
     return (
       <div>
-        <Link to={back.to} className="text-sm text-primary hover:underline">
+        <Link to={back.to} className={themeClasses.linkSm}>
           {back.label}
         </Link>
-        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">
-          {error ?? 'Word not found'}
-        </div>
+        <div className={`mt-4 ${themeClasses.alertError}`}>{error ?? 'Word not found'}</div>
       </div>
     )
   }
 
   return (
     <div>
-      <Link to={back.to} className="text-sm text-primary hover:underline">
+      <Link to={back.to} className={themeClasses.linkSm}>
         {back.label}
       </Link>
 
@@ -64,8 +63,8 @@ export default function WordDetailPage() {
             <DictionaryEntryCard key={`${entry.text}-${index}`} entry={entry} fallbackWord={word.content} />
           ))
         ) : (
-          <div className="rounded-lg border border-gray-200 bg-elevated px-6 py-5 text-center shadow-sm dark:border-gray-700">
-            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">{word.content}</h2>
+          <div className={`${themeClasses.cardPadded} text-center`}>
+            <h2 className={themeClasses.heading2xl}>{word.content}</h2>
             {(word.reading ?? word.kana) && (
               <p className="mt-2 text-xl text-muted">{word.reading ?? word.kana}</p>
             )}
@@ -74,7 +73,7 @@ export default function WordDetailPage() {
         )}
       </div>
 
-      <div className="mt-6 rounded-lg border border-gray-200 bg-elevated p-6 shadow-sm dark:border-gray-700">
+      <div className={`mt-6 ${themeClasses.panel}`}>
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted">Occurrences</dt>
@@ -87,10 +86,7 @@ export default function WordDetailPage() {
                 <span className="text-muted">None</span>
               ) : (
                 word.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-gray-100 px-2 py-0.5 font-mono text-sm text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-                  >
+                  <span key={tag} className={themeClasses.tagSm}>
                     {tag}
                   </span>
                 ))
@@ -102,13 +98,13 @@ export default function WordDetailPage() {
         {word.frequencies.length > 0 && (
           <div className="mt-6">
             <h2 className="text-sm font-medium uppercase tracking-wide text-muted">Frequencies</h2>
-            <ul className="mt-2 divide-y divide-gray-100 rounded-lg border border-gray-200 dark:divide-gray-800 dark:border-gray-700">
+            <ul className={`mt-2 ${themeClasses.listPanel}`}>
               {word.frequencies.map((entry) => (
                 <li
                   key={entry.table}
                   className="flex items-center justify-between px-4 py-2 text-sm"
                 >
-                  <span className="font-medium text-gray-900 dark:text-gray-100">{entry.table}</span>
+                  <span className={themeClasses.listItemLabel}>{entry.table}</span>
                   <span className="tabular-nums text-muted">
                     {entry.frequency.toLocaleString()} ({(entry.ratio * 100).toFixed(2)}%)
                   </span>
@@ -124,10 +120,7 @@ export default function WordDetailPage() {
             <ul className="mt-2 flex flex-wrap gap-2">
               {word.word_sets.map((wordSet) => (
                 <li key={wordSet.id}>
-                  <Link
-                    to={`/word-sets/${wordSet.id}`}
-                    className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary hover:bg-primary/20"
-                  >
+                  <Link to={`/word-sets/${wordSet.id}`} className={themeClasses.wordSetPill}>
                     {wordSet.name}
                   </Link>
                 </li>
