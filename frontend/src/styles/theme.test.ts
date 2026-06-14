@@ -58,7 +58,11 @@ describe('theme adoption in components', () => {
     '../components/ThemeToggle.tsx',
     '../components/Layout.tsx',
     '../components/WordSetList.tsx',
-    '../pages/HomePage.tsx',
+    '../pages/WordSetsPage.tsx',
+    '../pages/DecksPage.tsx',
+    '../pages/CreateDeckPage.tsx',
+    '../pages/DeckPage.tsx',
+    '../pages/DeckCardDetailPage.tsx',
     '../pages/WordSetPage.tsx',
     '../pages/WordDetailPage.tsx',
   ]

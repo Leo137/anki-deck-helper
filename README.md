@@ -45,10 +45,18 @@ Users can register and log in from the top bar. The API uses Devise with JWT bea
 | GET | `/api/v1/auth/me` | Current user (requires JWT) |
 | DELETE | `/api/v1/auth/logout` | Revoke JWT |
 | GET/PATCH | `/api/v1/users/preferences` | Read/update `preferred_language` |
+| GET | `/api/v1/decks` | Current user's decks with `cards_count` and `status` (requires JWT) |
+| POST | `/api/v1/decks` | Queue deck generation from word sets and frequency tables (requires JWT) |
+| GET | `/api/v1/decks/:id` | Deck metadata and generation status (requires JWT) |
+| GET | `/api/v1/frequency_tables` | Available frequency tables for deck creation |
 
 Passwords must be at least 8 characters and include one uppercase letter and one special character.
 
 Set `DEVISE_JWT_SECRET_KEY` in production (development/test use a default).
+
+### Decks
+
+Decks are user-owned collections of ordered **cards** for spaced repetition study. Each `Deck::Card` has **front** and **back** `Deck::Card::Field` records that store HTML content (generated like `AnkiCardGenerator`). Signed-in users can create decks from one or more word sets and frequency tables; card ordering uses `WordPriorityEstimator`. Generation runs in the background via Good Job (`worker` service in Docker Compose). Execution details are written to `log/deck_creation.log` (view with `docker compose exec worker tail -f log/deck_creation.log`).
 
 # Prerequisites
 

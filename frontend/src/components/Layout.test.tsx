@@ -13,7 +13,9 @@ describe('Layout', () => {
       </Layout>,
     )
 
-    expect(screen.getByRole('link', { name: 'Word Tracker' })).toHaveAttribute('href', '/')
+    expect(screen.getByRole('link', { name: 'Word Tracker' })).toHaveAttribute('href', '/word-sets')
+    expect(screen.getByRole('link', { name: 'Word Sets' })).toHaveAttribute('href', '/word-sets')
+    expect(screen.getByRole('link', { name: 'Decks' })).toHaveAttribute('href', '/decks')
     expect(screen.getByRole('combobox', { name: /search words and word sets/i })).toBeInTheDocument()
     expect(await screen.findByRole('button', { name: 'Log in' })).toBeInTheDocument()
     expect(screen.getByText('Page content')).toBeInTheDocument()

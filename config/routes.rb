@@ -28,6 +28,10 @@ Rails.application.routes.draw do
       resources :word_sets, only: %i[index show] do
         resources :words, only: [:index], module: :word_sets
       end
+      resources :decks, only: %i[index show create destroy] do
+        resources :cards, only: %i[index show], module: :decks
+      end
+      resources :frequency_tables, only: %i[index]
       resources :words, only: %i[index show]
       get :search, to: 'search#index'
     end

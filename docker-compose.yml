@@ -30,6 +30,19 @@ services:
       - word-tracker-gems:/gems
     env_file:
       - ".env"
+  worker:
+    build: .
+    command: bundle exec good_job start
+    depends_on:
+      - postgres
+      - app
+    restart: unless-stopped
+    volumes:
+      - "./.bundle:/root/.bundle"
+      - ".:/app:cached"
+      - word-tracker-gems:/gems
+    env_file:
+      - ".env"
   frontend:
     image: node:22-alpine
     working_dir: /app/frontend

@@ -13,6 +13,7 @@ Use the matching Compose service.
 | Service | Use for |
 |---------|---------|
 | `app` | Rails, Bundler, RSpec, rake, rails console |
+| `worker` | Good Job background processing (`DeckCreationJob`, etc.) |
 | `frontend` | npm, Vite, TypeScript build |
 | `postgres` | DB (host port `36000` → container `5432`) |
 

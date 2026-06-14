@@ -4,7 +4,7 @@ import WordSetList from '../components/WordSetList'
 import { themeClasses } from '../styles/theme'
 import type { WordSetSummary } from '../types/word'
 
-export default function HomePage() {
+export default function WordSetsPage() {
   const [wordSets, setWordSets] = useState<WordSetSummary[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
