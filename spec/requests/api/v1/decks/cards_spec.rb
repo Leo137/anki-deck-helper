@@ -44,6 +44,32 @@ RSpec.describe 'Api::V1::Decks::Cards', type: :request do
 
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it 'filters cards by front content' do
+      matching = create(:deck_card, :complete, deck:, position: 1)
+      matching.front_field.update!(html_content: '<h1>型</h1>')
+      non_matching = create(:deck_card, :complete, deck:, position: 2)
+      non_matching.front_field.update!(html_content: '<h1>要素</h1>')
+
+      get "/api/v1/decks/#{deck.id}/cards", params: { q: '型' }, headers:, as: :json
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body['cards'].map { |card| card['id'] }).to eq([matching.id])
+      expect(body['cards'].first['front_preview']).to eq('型')
+      expect(body['pagination']).to include('total_count' => 1)
+    end
+
+    it 'does not filter cards by back content alone' do
+      card = create(:deck_card, :complete, deck:, position: 1)
+      card.back_field.update!(html_content: '<div class="definition">* semiconductor</div>')
+
+      get "/api/v1/decks/#{deck.id}/cards", params: { q: 'semiconductor' }, headers:, as: :json
+
+      body = JSON.parse(response.body)
+      expect(body['cards']).to eq([])
+      expect(body['pagination']).to include('total_count' => 0)
+    end
   end
 
   describe 'GET /api/v1/decks/:deck_id/cards/:id' do
@@ -63,6 +89,31 @@ RSpec.describe 'Api::V1::Decks::Cards', type: :request do
       )
       expect(body['fields'].map { |field| field['side'] }).to eq(%w[front back])
       expect(body['fields'].first['html_content']).to start_with('<h1>')
+      expect(body['study_stats']).to include(
+        'know_count' => 0,
+        'dont_know_count' => 0,
+        'total_responses' => 0,
+        'accuracy_rate' => nil,
+        'last_responded_at' => nil,
+        'last_correct' => nil
+      )
+    end
+
+    it 'includes study stats when responses exist' do
+      card = create(:deck_card, :complete, deck:, position: 1)
+      create(:deck_card_study_response, user:, deck_card: card, correct: true)
+      create(:deck_card_study_response, user:, deck_card: card, correct: false)
+
+      get "/api/v1/decks/#{deck.id}/cards/#{card.id}", headers:, as: :json
+
+      body = JSON.parse(response.body)
+      expect(body['study_stats']).to include(
+        'know_count' => 1,
+        'dont_know_count' => 1,
+        'total_responses' => 2,
+        'accuracy_rate' => 0.5,
+        'last_correct' => false
+      )
     end
 
     it 'returns neighboring card ids for navigation' do

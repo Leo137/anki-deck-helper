@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { fetchDeckCard } from '../api/decks'
 import DeckCardHtmlContent from '../components/DeckCardHtmlContent'
@@ -44,9 +44,10 @@ export default function DeckCardDetailPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const navigationState = location.state as DeckCardDetailLocationState | null
+  const previousDeckIdRef = useRef(deckId)
 
   const [card, setCard] = useState<DeckCardDetail | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [cardLoading, setCardLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const goToCard = useCallback(
@@ -65,18 +66,34 @@ export default function DeckCardDetailPage() {
   useEffect(() => {
     if (!deckId || !id) return
 
-    setLoading(true)
+    if (previousDeckIdRef.current !== deckId) {
+      previousDeckIdRef.current = deckId
+      setCard(null)
+    }
+
+    let cancelled = false
+    setCardLoading(true)
     setError(null)
 
     fetchDeckCard(Number(deckId), Number(id))
-      .then(setCard)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false))
+      .then((data) => {
+        if (!cancelled) setCard(data)
+      })
+      .catch((err: Error) => {
+        if (!cancelled) setError(err.message)
+      })
+      .finally(() => {
+        if (!cancelled) setCardLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [deckId, id])
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (isEditableTarget(event.target) || !card) {
+      if (isEditableTarget(event.target) || !card || cardLoading) {
         return
       }
 
@@ -93,21 +110,32 @@ export default function DeckCardDetailPage() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [card, goToCard])
+  }, [card, cardLoading, goToCard])
 
-  if (error) {
+  if (!card) {
+    if (error) {
+      return (
+        <div>
+          <Link to="/decks" className={themeClasses.linkSm}>
+            ← Back to decks
+          </Link>
+          <div className={`mt-4 ${themeClasses.alertError}`}>{error}</div>
+        </div>
+      )
+    }
+
+    if (cardLoading) {
+      return <p className="text-muted">Loading card…</p>
+    }
+
     return (
       <div>
         <Link to="/decks" className={themeClasses.linkSm}>
           ← Back to decks
         </Link>
-        <div className={`mt-4 ${themeClasses.alertError}`}>{error}</div>
+        <div className={`mt-4 ${themeClasses.alertError}`}>Card not found</div>
       </div>
     )
-  }
-
-  if (loading || !card) {
-    return <p className="text-muted">Loading card…</p>
   }
 
   const frontField = fieldForSide(card.fields, 'front')
@@ -125,7 +153,7 @@ export default function DeckCardDetailPage() {
           type="button"
           className={`${themeClasses.iconButton} disabled:cursor-not-allowed disabled:opacity-40`}
           onClick={() => card.previous_card_id && goToCard(card.previous_card_id)}
-          disabled={!card.previous_card_id}
+          disabled={!card.previous_card_id || cardLoading}
           aria-label="Previous card"
           title="Previous card (← arrow key)"
         >
@@ -133,13 +161,15 @@ export default function DeckCardDetailPage() {
         </button>
         <div className="text-center">
           <p className="text-sm text-muted tabular-nums">Card {card.position}</p>
-          <p className="text-xs text-subtle">Use ← → arrow keys</p>
+          <p className="text-xs text-subtle">
+            {cardLoading ? 'Fetching…' : 'Use ← → arrow keys'}
+          </p>
         </div>
         <button
           type="button"
           className={`${themeClasses.iconButton} disabled:cursor-not-allowed disabled:opacity-40`}
           onClick={() => card.next_card_id && goToCard(card.next_card_id)}
-          disabled={!card.next_card_id}
+          disabled={!card.next_card_id || cardLoading}
           aria-label="Next card"
           title="Next card (→ arrow key)"
         >
@@ -147,7 +177,12 @@ export default function DeckCardDetailPage() {
         </button>
       </div>
 
-      <div className="mt-4 space-y-4">
+      {error ? <div className={`mt-4 ${themeClasses.alertError}`}>{error}</div> : null}
+
+      <div
+        className={`mt-4 space-y-4 transition-opacity ${cardLoading ? 'opacity-60' : 'opacity-100'}`}
+        aria-busy={cardLoading}
+      >
         <section className={themeClasses.cardPadded}>
           <h2 className="text-sm font-medium uppercase tracking-wide text-muted">Front</h2>
           <div className="mt-3">
@@ -171,7 +206,9 @@ export default function DeckCardDetailPage() {
         </section>
       </div>
 
-      <div className={`mt-6 ${themeClasses.panel}`}>
+      <div
+        className={`mt-6 transition-opacity ${cardLoading ? 'opacity-60' : 'opacity-100'} ${themeClasses.panel}`}
+      >
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted">Position</dt>
@@ -186,6 +223,48 @@ export default function DeckCardDetailPage() {
             </dd>
           </div>
         </dl>
+      </div>
+
+      <div
+        className={`mt-6 transition-opacity ${cardLoading ? 'opacity-60' : 'opacity-100'} ${themeClasses.panel}`}
+      >
+        <h2 className="text-sm font-medium uppercase tracking-wide text-muted">Study stats</h2>
+        {card.study_stats.total_responses === 0 ? (
+          <p className="mt-3 text-sm text-muted">No study responses yet.</p>
+        ) : (
+          <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted">Know</dt>
+              <dd className="mt-1 text-lg tabular-nums">{card.study_stats.know_count}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted">
+                Don&apos;t know
+              </dt>
+              <dd className="mt-1 text-lg tabular-nums">{card.study_stats.dont_know_count}</dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted">Accuracy</dt>
+              <dd className="mt-1 text-lg tabular-nums">
+                {card.study_stats.accuracy_rate !== null
+                  ? `${Math.round(card.study_stats.accuracy_rate * 100)}%`
+                  : '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wide text-muted">
+                Last response
+              </dt>
+              <dd className="mt-1 text-sm">
+                {card.study_stats.last_correct === null
+                  ? '—'
+                  : card.study_stats.last_correct
+                    ? 'Know'
+                    : "Don't know"}
+              </dd>
+            </div>
+          </dl>
+        )}
       </div>
     </div>
   )

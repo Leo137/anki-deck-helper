@@ -10,6 +10,14 @@ describe('DeckCardTable', () => {
     expect(screen.getByText(/this deck has no cards yet/i)).toBeInTheDocument()
   })
 
+  it('shows a no-match message when search returns no cards', () => {
+    renderWithProviders(
+      <DeckCardTable cards={[]} deckId={1} page={1} searchQuery="型" />,
+    )
+
+    expect(screen.getByText(/no cards match your search/i)).toBeInTheDocument()
+  })
+
   it('renders card rows with links to card detail', () => {
     renderWithProviders(
       <DeckCardTable

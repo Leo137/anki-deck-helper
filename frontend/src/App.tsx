@@ -4,6 +4,7 @@ import CreateDeckPage from './pages/CreateDeckPage'
 import DeckCardDetailPage from './pages/DeckCardDetailPage'
 import DeckPage from './pages/DeckPage'
 import DecksPage from './pages/DecksPage'
+import StudyPage from './pages/StudyPage'
 import PreferencesPage from './pages/PreferencesPage'
 import WordSetPage from './pages/WordSetPage'
 import WordDetailPage from './pages/WordDetailPage'
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/decks" element={<DecksPage />} />
         <Route path="/decks/new" element={<CreateDeckPage />} />
         <Route path="/decks/:id" element={<DeckPage />} />
+        <Route path="/decks/:id/study" element={<StudyPage />} />
         <Route path="/decks/:deckId/cards/:id" element={<DeckCardDetailPage />} />
         <Route path="/words/:id" element={<WordDetailPage />} />
         <Route path="/preferences" element={<PreferencesPage />} />

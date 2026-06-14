@@ -6,13 +6,14 @@ type DeckCardTableProps = {
   cards: DeckCardSummary[]
   deckId: number
   page: number
+  searchQuery?: string
 }
 
-export default function DeckCardTable({ cards, deckId, page }: DeckCardTableProps) {
+export default function DeckCardTable({ cards, deckId, page, searchQuery }: DeckCardTableProps) {
   if (cards.length === 0) {
     return (
       <p className={`${themeClasses.cardDashed} px-6 py-12 text-center text-muted`}>
-        This deck has no cards yet.
+        {searchQuery ? 'No cards match your search.' : 'This deck has no cards yet.'}
       </p>
     )
   }

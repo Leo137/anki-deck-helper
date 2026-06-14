@@ -11,6 +11,7 @@ module Api
 
         def index
           scope = @deck.cards.includes(:fields).order(:position)
+          scope = scope.search_by_front_content(params[:q]) if params[:q].present?
           paginated = paginate(scope)
           @cards = paginated[:records]
           @pagination = paginated[:pagination]
@@ -19,6 +20,7 @@ module Api
         def show
           @previous_card_id = neighbor_card_id(:desc, '<')
           @next_card_id = neighbor_card_id(:asc, '>')
+          @study_stats = Deck::Card::StudyResponse.stats_for(user: current_user, card: @card)
         end
 
         private

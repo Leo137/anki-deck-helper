@@ -30,6 +30,10 @@ Rails.application.routes.draw do
       end
       resources :decks, only: %i[index show create destroy] do
         resources :cards, only: %i[index show], module: :decks
+        scope module: :decks do
+          get 'study/next', to: 'study#next'
+          post 'study/responses', to: 'study#create'
+        end
       end
       resources :frequency_tables, only: %i[index]
       resources :words, only: %i[index show]

@@ -17,6 +17,7 @@ module Api
 
       def show
         @cards_count = @deck.cards.count
+        @study_summary = Deck::Study::DeckStats.new(deck: @deck, user: current_user).summary
       end
 
       def destroy
@@ -47,6 +48,7 @@ module Api
       def render_created_deck(deck)
         @deck = deck
         @cards_count = 0
+        @study_summary = Deck::Study::DeckStats.new(deck:, user: current_user).summary
         render :show, status: :accepted
       end
     end
