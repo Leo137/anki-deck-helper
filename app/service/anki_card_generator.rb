@@ -18,8 +18,6 @@ class AnkiCardGenerator
     }
   end
 
-  private
-
   def generate_front
     "<h1>#{content}</h1>"
   end
@@ -32,6 +30,8 @@ class AnkiCardGenerator
     end.join('<br>')
   end
 
+  private
+
   def entries
     @entries ||= matched_entries.select { |entry| entry_in_dictionary?(entry) }
   end
@@ -40,7 +40,7 @@ class AnkiCardGenerator
     (
       Dictionary::Entry.where(text: content) +
       Dictionary::Reading.where(text: content).map(&:dictionary_entry)
-    ).flatten.compact.uniq.sort_by(&:jmdict_id)
+    ).flatten.compact.uniq.sort_by { |entry| [entry.jmdict_id.nil? ? 1 : 0, entry.jmdict_id.to_i] }
   end
 
   def entry_in_dictionary?(entry)
