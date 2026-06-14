@@ -70,6 +70,9 @@ gem 'yajl-ruby', require: 'yajl'
 # A library for bulk insertion of data into your database using ActiveRecord.
 gem 'activerecord-import'
 
+# Database-backed Active Job backend (PostgreSQL)
+gem 'good_job', '~> 3.0'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri mingw x64_mingw]
