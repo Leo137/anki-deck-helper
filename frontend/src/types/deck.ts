@@ -33,6 +33,28 @@ export type DeckCardDetail = DeckCard & {
     id: number
     name: string
   }
+  study_stats: DeckCardStudyStats
+}
+
+export type DeckCardStudyStats = {
+  know_count: number
+  dont_know_count: number
+  total_responses: number
+  accuracy_rate: number | null
+  last_responded_at: string | null
+  last_correct: boolean | null
+}
+
+export type StudyCard = DeckCard & {
+  deck: {
+    id: number
+    name: string
+  }
+}
+
+export type RecordStudyResponsePayload = {
+  card_id: number
+  correct: boolean
 }
 
 export type PaginatedDeckCards = {
@@ -45,6 +67,13 @@ export type PaginatedDeckCards = {
   }
 }
 
+export type DeckStudySummary = {
+  not_reviewed_count: number
+  young_count: number
+  learning_count: number
+  mature_count: number
+}
+
 export type DeckSummary = {
   id: number
   name: string
@@ -55,6 +84,7 @@ export type DeckSummary = {
   cards_count: number
   created_at: string
   updated_at: string
+  study_summary?: DeckStudySummary
 }
 
 export type FrequencyTableSummary = {
