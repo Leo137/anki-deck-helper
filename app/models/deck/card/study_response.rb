@@ -20,15 +20,27 @@ class Deck
         total = know_count + dont_know_count
         last = responses.order(created_at: :desc).first
 
+        build_stats_hash(know_count:, dont_know_count:, total:, last:)
+      end
+
+      def self.build_stats_hash(know_count:, dont_know_count:, total:, last:)
         {
           know_count:,
           dont_know_count:,
           total_responses: total,
-          accuracy_rate: total.positive? ? (know_count.to_f / total).round(3) : nil,
+          accuracy_rate: accuracy_rate(know_count, total),
           last_responded_at: last&.created_at,
           last_correct: last&.correct
         }
       end
+
+      def self.accuracy_rate(know_count, total)
+        return nil unless total.positive?
+
+        (know_count.to_f / total).round(3)
+      end
+
+      private_class_method :build_stats_hash, :accuracy_rate
 
       private
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Deck
-  class Study
+  module Study
     class Maturity
       CORRECT_INCREMENT = 0.3
       MAX_FACTOR = 5.0

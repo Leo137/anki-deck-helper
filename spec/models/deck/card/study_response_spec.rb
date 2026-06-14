@@ -30,9 +30,9 @@ RSpec.describe Deck::Card::StudyResponse, type: :model do
       card = create(:deck_card, :complete, deck:)
 
       create(:deck_card_study_response, user:, deck_card: card, correct: true,
-                                          created_at: 2.days.ago)
+                                        created_at: 2.days.ago)
       create(:deck_card_study_response, user:, deck_card: card, correct: false,
-                                          created_at: 1.day.ago)
+                                        created_at: 1.day.ago)
 
       stats = described_class.stats_for(user:, card:)
 

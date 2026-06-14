@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Deck
-  class Study
+  module Study
     class CardPicker
       RECENT_FAILURE_WINDOW = 24.hours
       BASE_WEIGHT = 1.0
@@ -30,54 +30,69 @@ class Deck
 
       def weight_for(card)
         stats = stats_by_card_id[card.id] || empty_stats
-        weight = BASE_WEIGHT
+        weight = BASE_WEIGHT + accuracy_weight(stats)
+        weight + recent_failure_boost(stats)
+      end
 
-        if stats[:total].zero?
-          weight += NEW_CARD_BOOST
-        else
-          accuracy = stats[:know_count].to_f / stats[:total]
-          weight += (1 - accuracy) * LOW_ACCURACY_MULTIPLIER
-        end
+      def accuracy_weight(stats)
+        return NEW_CARD_BOOST if stats[:total].zero?
 
-        if stats[:last_correct] == false && stats[:last_at]&.>(RECENT_FAILURE_WINDOW.ago)
-          weight += RECENT_FAILURE_BOOST
-        end
+        accuracy = stats[:know_count].to_f / stats[:total]
+        (1 - accuracy) * LOW_ACCURACY_MULTIPLIER
+      end
 
-        weight
+      def recent_failure_boost(stats)
+        return 0 unless stats[:last_correct] == false && stats[:last_at]&.>(RECENT_FAILURE_WINDOW.ago)
+
+        RECENT_FAILURE_BOOST
       end
 
       def stats_by_card_id
-        @stats_by_card_id ||= begin
-          card_ids = @deck.cards.pluck(:id)
-          return {} if card_ids.empty?
+        @stats_by_card_id ||= build_stats_by_card_id
+      end
 
-          aggregates = Deck::Card::StudyResponse
-                       .where(user: @user, deck_card_id: card_ids)
-                       .group(:deck_card_id)
-                       .pluck(
-                         :deck_card_id,
-                         Arel.sql('SUM(CASE WHEN correct THEN 1 ELSE 0 END)'),
-                         Arel.sql('SUM(CASE WHEN NOT correct THEN 1 ELSE 0 END)')
-                       )
+      def build_stats_by_card_id
+        card_ids = @deck.cards.pluck(:id)
+        return {} if card_ids.empty?
 
-          last_by_card = Deck::Card::StudyResponse
-                         .where(user: @user, deck_card_id: card_ids)
-                         .select('DISTINCT ON (deck_card_id) deck_card_id, correct, created_at')
-                         .order(:deck_card_id, created_at: :desc)
-                         .index_by(&:deck_card_id)
+        aggregates = aggregate_counts(card_ids)
+        last_by_card = latest_responses(card_ids)
+        build_stats_hash(aggregates, last_by_card)
+      end
 
-          aggregates.each_with_object({}) do |(card_id, know_count, dont_know_count), hash|
-            total = know_count + dont_know_count
-            last = last_by_card[card_id]
-            hash[card_id] = {
-              know_count:,
-              dont_know_count:,
-              total:,
-              last_correct: last&.correct,
-              last_at: last&.created_at
-            }
-          end
+      def aggregate_counts(card_ids)
+        Deck::Card::StudyResponse
+          .where(user: @user, deck_card_id: card_ids)
+          .group(:deck_card_id)
+          .pluck(
+            :deck_card_id,
+            Arel.sql('SUM(CASE WHEN correct THEN 1 ELSE 0 END)'),
+            Arel.sql('SUM(CASE WHEN NOT correct THEN 1 ELSE 0 END)')
+          )
+      end
+
+      def latest_responses(card_ids)
+        Deck::Card::StudyResponse
+          .where(user: @user, deck_card_id: card_ids)
+          .select('DISTINCT ON (deck_card_id) deck_card_id, correct, created_at')
+          .order(:deck_card_id, created_at: :desc)
+          .index_by(&:deck_card_id)
+      end
+
+      def build_stats_hash(aggregates, last_by_card)
+        aggregates.each_with_object({}) do |(card_id, know_count, dont_know_count), hash|
+          hash[card_id] = stats_entry(know_count, dont_know_count, last_by_card[card_id])
         end
+      end
+
+      def stats_entry(know_count, dont_know_count, last)
+        {
+          know_count:,
+          dont_know_count:,
+          total: know_count + dont_know_count,
+          last_correct: last&.correct,
+          last_at: last&.created_at
+        }
       end
 
       def empty_stats

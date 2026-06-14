@@ -9,7 +9,7 @@ RSpec.describe Deck::Study::DeckStats do
   def record_responses(card, pattern)
     pattern.each_with_index do |correct, index|
       create(:deck_card_study_response, user:, deck_card: card, correct:,
-                                         created_at: index.minutes.ago)
+                                        created_at: index.minutes.ago)
     end
   end
 

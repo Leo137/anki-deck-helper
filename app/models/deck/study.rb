@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 class Deck
-  class Study
+  module Study
   end
 end
