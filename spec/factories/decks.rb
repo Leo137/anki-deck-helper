@@ -5,15 +5,14 @@ FactoryBot.define do
     user
     sequence(:name) { |n| "deck-#{n}" }
 
-    trait :with_words do
+    trait :with_cards do
       transient do
-        words_count { 3 }
+        cards_count { 3 }
       end
 
       after(:create) do |deck, evaluator|
-        words = create_list(:word, evaluator.words_count)
-        words.each_with_index do |word, index|
-          deck.deck_words.create!(word:, position: index + 1)
+        evaluator.cards_count.times do |index|
+          create(:deck_card, :complete, deck:, position: index + 1)
         end
       end
     end
