@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   createDeck,
+  downloadDeckAnkiExport,
   fetchDecks,
   fetchDeck,
   fetchDeckCards,
@@ -204,5 +205,36 @@ describe('decks API', () => {
         body: JSON.stringify({ response: { card_id: 4, correct: true } }),
       }),
     )
+  })
+
+  it('downloadDeckAnkiExport downloads the Anki export file', async () => {
+    const blob = new Blob(['#front|back\n<h1>test</h1>|<p>answer</p>'], { type: 'text/plain' })
+    const click = vi.fn()
+    const createObjectURL = vi.fn().mockReturnValue('blob:export')
+    const revokeObjectURL = vi.fn()
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        blob: () => Promise.resolve(blob),
+      }),
+    )
+    vi.stubGlobal('URL', { createObjectURL, revokeObjectURL })
+    vi.spyOn(document, 'createElement').mockReturnValue({
+      click,
+      download: '',
+      href: '',
+    } as unknown as HTMLAnchorElement)
+
+    await downloadDeckAnkiExport(3, 'Core Vocab')
+
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/v1/decks/3/anki_export',
+      expect.objectContaining({ headers: expect.any(Headers) }),
+    )
+    expect(createObjectURL).toHaveBeenCalledWith(blob)
+    expect(click).toHaveBeenCalled()
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:export')
   })
 })
