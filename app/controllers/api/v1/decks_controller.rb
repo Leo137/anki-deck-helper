@@ -5,7 +5,7 @@ module Api
     class DecksController < BaseController
       include JwtAuthenticatable
 
-      before_action :set_deck, only: %i[show destroy]
+      before_action :set_deck, only: %i[show destroy anki_export]
 
       def index
         @decks = current_user.decks
@@ -23,6 +23,18 @@ module Api
       def destroy
         Deck::Destroyer.new(deck: @deck).call
         head :no_content
+      end
+
+      def anki_export
+        file_path = DeckAnkiExportGenerator.new(deck: @deck).call
+        send_file(
+          file_path,
+          filename: "#{@deck.name}.txt",
+          type: 'text/plain',
+          disposition: 'attachment'
+        )
+      rescue DeckAnkiExportGenerator::Error => e
+        render json: { errors: [e.message] }, status: :unprocessable_entity
       end
 
       def create

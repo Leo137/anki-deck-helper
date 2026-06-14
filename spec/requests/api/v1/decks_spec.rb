@@ -184,4 +184,51 @@ RSpec.describe 'Api::V1::Decks', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
   end
+
+  describe 'GET /api/v1/decks/:id/anki_export' do
+    it 'downloads an Anki import file for a deck with cards' do
+      deck = create(:deck, user:, name: 'Core Vocab', status: :ready)
+      card = create(:deck_card, :complete, deck:, position: 1)
+      front = card.front_field.html_content
+      back = card.back_field.html_content
+
+      get "/api/v1/decks/#{deck.id}/anki_export", headers:, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq('text/plain')
+      expect(response.headers['Content-Disposition']).to include('attachment')
+      expect(response.headers['Content-Disposition']).to include('Core Vocab.txt')
+      body = response.body.dup.force_encoding(Encoding::UTF_8)
+      expect(body).to start_with('#front|back')
+      expect(body).to include("#{front}|#{back}")
+    end
+
+    it 'returns unprocessable entity when the deck has no cards' do
+      deck = create(:deck, user:, name: 'Empty', status: :ready)
+
+      get "/api/v1/decks/#{deck.id}/anki_export", headers:, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)).to eq('errors' => ['Deck has no cards to export'])
+    end
+
+    it 'returns not found for another user deck' do
+      deck = create(:deck, user: other_user, name: 'Private')
+      create(:deck_card, :complete, deck:, position: 1)
+
+      get "/api/v1/decks/#{deck.id}/anki_export", headers:, as: :json
+
+      expect(response).to have_http_status(:not_found)
+      expect(JSON.parse(response.body)).to eq('error' => 'Not found')
+    end
+
+    it 'returns unauthorized without a token' do
+      deck = create(:deck, user:, name: 'Protected')
+      create(:deck_card, :complete, deck:, position: 1)
+
+      get "/api/v1/decks/#{deck.id}/anki_export", as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
 end

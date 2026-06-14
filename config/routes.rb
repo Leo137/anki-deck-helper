@@ -29,6 +29,9 @@ Rails.application.routes.draw do
         resources :words, only: [:index], module: :word_sets
       end
       resources :decks, only: %i[index show create destroy] do
+        member do
+          get :anki_export
+        end
         resources :cards, only: %i[index show], module: :decks
         scope module: :decks do
           get 'study/next', to: 'study#next'
