@@ -1,4 +1,4 @@
-import { request } from './client'
+import { getAuthToken, request } from './client'
 import type {
   CreateDeckPayload,
   DeckCardDetail,
@@ -74,4 +74,39 @@ export function recordStudyResponse(
     method: 'POST',
     body: { response: payload },
   })
+}
+
+export async function downloadDeckAnkiExport(deckId: number, deckName: string): Promise<void> {
+  const headers = new Headers()
+  const token = getAuthToken()
+  if (token) {
+    headers.set('Authorization', token)
+  }
+
+  const response = await fetch(`/api/v1/decks/${deckId}/anki_export`, { headers })
+
+  if (!response.ok) {
+    let message = response.status === 404 ? 'Not found' : `Request failed (${response.status})`
+
+    try {
+      const errorBody = (await response.json()) as { error?: string; errors?: string[] }
+      if (errorBody.errors?.length) {
+        message = errorBody.errors.join(', ')
+      } else if (errorBody.error) {
+        message = errorBody.error
+      }
+    } catch {
+      // Keep the default message when the body is not JSON.
+    }
+
+    throw new Error(message)
+  }
+
+  const blob = await response.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${deckName}.txt`
+  link.click()
+  URL.revokeObjectURL(url)
 }

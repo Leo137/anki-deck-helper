@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { fetchDeck, fetchDeckCards } from '../api/decks'
+import { downloadDeckAnkiExport, fetchDeck, fetchDeckCards } from '../api/decks'
 import DeckCardTable from '../components/DeckCardTable'
 import PaginationControls from '../components/PaginationControls'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
@@ -33,6 +33,7 @@ export default function DeckPage() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [cardsLoading, setCardsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (isComposingRef.current) return
@@ -136,6 +137,21 @@ export default function DeckPage() {
     setSearchParams(params)
   }
 
+  const handleAnkiExport = async () => {
+    if (!deck) return
+
+    setExporting(true)
+    setError(null)
+
+    try {
+      await downloadDeckAnkiExport(deck.id, deck.name)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   if (initialLoading) {
     return <p className="text-muted">Loading deck…</p>
   }
@@ -176,16 +192,27 @@ export default function DeckPage() {
           {deck.cards_count.toLocaleString()} {deck.cards_count === 1 ? 'card' : 'cards'}
         </p>
         {deck.status === 'ready' && deck.cards_count > 0 ? (
-          <Link
-            to={`/decks/${deck.id}/study`}
-            className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:bg-primary-hover"
-          >
-            Study
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              to={`/decks/${deck.id}/study`}
+              className="inline-block rounded-lg bg-primary px-4 py-2 text-sm font-medium text-on-primary hover:bg-primary-hover"
+            >
+              Study
+            </Link>
+            <button
+              type="button"
+              onClick={handleAnkiExport}
+              disabled={exporting}
+              className="inline-block rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {exporting ? 'Exporting…' : 'Export into an Anki deck'}
+            </button>
+          </div>
         ) : null}
         {deck.status === 'failed' && deck.error_message ? (
           <p className="mt-2 text-sm text-error-foreground">{deck.error_message}</p>
         ) : null}
+        {error ? <div className={`mt-2 ${themeClasses.alertError}`}>{error}</div> : null}
       </div>
       {deck.study_summary && deck.cards_count > 0 ? (
         <div className={`mb-6 ${themeClasses.panel}`}>

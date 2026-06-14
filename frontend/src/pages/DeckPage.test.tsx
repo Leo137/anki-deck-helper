@@ -225,4 +225,58 @@ describe('DeckPage', () => {
       expect(fetchDeckCards).toHaveBeenLastCalledWith(3, 1, 50, '型')
     })
   })
+
+  it('exports the deck to Anki when the user clicks the export button', async () => {
+    const user = userEvent.setup()
+    setAuthToken('Bearer test-token')
+    vi.spyOn(authApi, 'fetchCurrentUser').mockResolvedValue({
+      id: 1,
+      email: 'reader@example.com',
+      username: 'reader',
+      preferred_language: 'en',
+    })
+    vi.spyOn(decksApi, 'fetchDeck').mockResolvedValue({
+      id: 3,
+      name: 'Favorites',
+      status: 'ready',
+      error_message: null,
+      generation_progress: 100,
+      generation_total: 1,
+      cards_count: 1,
+      created_at: '',
+      updated_at: '',
+    })
+    vi.spyOn(decksApi, 'fetchDeckCards').mockResolvedValue({
+      cards: [
+        {
+          id: 10,
+          position: 1,
+          front_preview: '半導体',
+          created_at: '',
+          updated_at: '',
+        },
+      ],
+      pagination: {
+        page: 1,
+        per_page: 50,
+        total_count: 1,
+        total_pages: 1,
+      },
+    })
+    const downloadDeckAnkiExport = vi
+      .spyOn(decksApi, 'downloadDeckAnkiExport')
+      .mockResolvedValue(undefined)
+
+    renderDeckPage()
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /export into an anki deck/i })).toBeInTheDocument()
+    })
+
+    await user.click(screen.getByRole('button', { name: /export into an anki deck/i }))
+
+    await waitFor(() => {
+      expect(downloadDeckAnkiExport).toHaveBeenCalledWith(3, 'Favorites')
+    })
+  })
 })
