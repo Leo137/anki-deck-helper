@@ -88,3 +88,30 @@ body {
 #root {
   min-height: 100dvh;
 }
+
+.deck-card-html br {
+  display: block;
+  margin: 0.2rem 0 0;
+  content: '';
+}
+
+.deck-card-html h1 {
+  @apply text-3xl font-semibold text-foreground;
+}
+
+.deck-card-html .reading {
+  @apply text-xl text-muted;
+}
+
+.deck-card-html .tags {
+  @apply inline-block rounded-full bg-tag px-2 py-0.5 font-mono text-xs text-tag-foreground;
+}
+
+.deck-card-html .definition {
+  @apply text-sm text-muted;
+  margin: 0;
+}
+
+.deck-card-html hr {
+  @apply my-1.5 border-border;
+}
