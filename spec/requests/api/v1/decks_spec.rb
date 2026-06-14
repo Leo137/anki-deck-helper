@@ -52,7 +52,30 @@ RSpec.describe 'Api::V1::Decks', type: :request do
         'name' => 'Core',
         'status' => 'processing',
         'cards_count' => 0,
-        'generation_progress' => 0
+        'generation_progress' => 0,
+        'study_summary' => {
+          'not_reviewed_count' => 0,
+          'young_count' => 0,
+          'learning_count' => 0,
+          'mature_count' => 0
+        }
+      )
+    end
+
+    it 'returns combined study summary for reviewed cards' do
+      deck = create(:deck, user:, name: 'Core', status: :ready)
+      reviewed = create(:deck_card, :complete, deck:, position: 1)
+      create(:deck_card, :complete, deck:, position: 2)
+      create(:deck_card_study_response, user:, deck_card: reviewed, correct: true)
+
+      get "/api/v1/decks/#{deck.id}", headers:, as: :json
+
+      body = JSON.parse(response.body)
+      expect(body['study_summary']).to include(
+        'not_reviewed_count' => 1,
+        'young_count' => 1,
+        'learning_count' => 0,
+        'mature_count' => 0
       )
     end
   end
